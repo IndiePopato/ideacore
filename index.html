@@ -669,6 +669,12 @@
             else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); showToast("ID Copied"); }
         }
 
+        function cancelCrossLink() { 
+            isLinkingMode = false; 
+            linkSourceId = null; 
+            renderBottomPanel(); 
+        }
+
         function createNewNode(parentId) {
             lastInteractionTime = Date.now();
             const parent = nodes.find(n => n.id === parentId);
