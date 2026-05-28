@@ -30,7 +30,6 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: none;
             -webkit-font-smoothing: antialiased;
         }
@@ -46,8 +45,9 @@
             color: var(--text-main);
             border-radius: 0.5rem;
             transition: all 0.2s ease;
-            /* Ensure comfortable touch target for inputs */
             min-height: 44px;
+            /* Prevent iOS Auto Zoom */
+            font-size: 16px !important;
         }
         .input-field:focus { 
             outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); 
@@ -56,7 +56,6 @@
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
             border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
-            /* Apple HIG: 44px minimum touch target */
             min-height: 44px; padding: 0.5rem 1rem;
         }
         .btn-primary { background-color: var(--accent); color: #ffffff; border: none; }
@@ -75,11 +74,9 @@
             cursor: crosshair;
             background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
             background-size: 32px 32px;
-            /* Critical for touch: prevent browser handling of gestures */
             touch-action: none;
         }
 
-        /* Side Drawer for File Manager */
         #file-drawer {
             position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 50;
             background: rgba(24, 26, 31, 0.95); backdrop-filter: blur(12px);
@@ -102,15 +99,12 @@
         .file-item:hover, .file-item:active { background: var(--bg-hover); color: var(--text-main); }
         .file-item.active { background: var(--accent-dim); color: var(--text-main); font-weight: 500; }
         
-        .btn-delete-hold {
-            position: relative; width: 32px; height: 32px; text-align: center; line-height: 32px;
-            color: var(--text-muted); user-select: none; border-radius: 6px; overflow: hidden;
-            font-size: 16px; display: flex; justify-content: center; align-items: center;
+        .btn-delete {
+            width: 32px; height: 32px; text-align: center; line-height: 32px;
+            color: var(--text-muted); border-radius: 6px; display: flex; justify-content: center; align-items: center;
+            transition: all 0.2s;
         }
-        .btn-delete-hold:active, .btn-delete-hold:hover { background: var(--bg-hover); color: white; }
-        .delete-progress {
-            position: absolute; bottom: 0; left: 0; height: 100%; background: var(--text-muted); width: 0%; transition: width 0.1s; z-index: -1;
-        }
+        .btn-delete:active, .btn-delete:hover { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
 
         .hat-btn {
             width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
@@ -125,7 +119,6 @@
         .hat-black { background-color: #52525b; } .hat-yellow { background-color: #fbbf24; }
         .hat-green { background-color: #10b981; } .hat-blue { background-color: #38bdf8; }
 
-        /* Custom Modal & Toast */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100;
             background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
@@ -139,7 +132,6 @@
         .toast { background: var(--accent); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: fade-in-up 0.3s ease; }
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Bottom Panel Responsive */
         #bottom-panel {
             transition: height 0.3s ease;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
@@ -148,7 +140,6 @@
 </head>
 <body>
 
-    <!-- Top App Bar -->
     <header class="h-16 bg-[#181a1f] border-b border-[#2b2d35] flex items-center justify-between px-4 z-20 shrink-0">
         <div class="flex items-center gap-3">
             <button onclick="toggleDrawer()" class="p-2 -ml-2 text-gray-400 hover:text-white rounded-lg active:bg-gray-800">
@@ -163,10 +154,8 @@
         </div>
     </header>
 
-    <!-- Drawer Overlay -->
     <div id="drawer-overlay" onclick="toggleDrawer()"></div>
     
-    <!-- File Explorer Drawer -->
     <div id="file-drawer" class="flex flex-col">
         <div class="p-5 border-b border-[#2b2d35] flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-100">Projects</h2>
@@ -183,7 +172,6 @@
         <div id="file-list" class="flex-1 overflow-y-auto p-4 flex flex-col"></div>
     </div>
 
-    <!-- Canvas Area -->
     <div id="canvas-container" class="flex-grow relative">
         <canvas id="sphereCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
         <div class="absolute top-4 left-4 pointer-events-none">
@@ -196,21 +184,12 @@
         </div>
     </div>
 
-    <!-- Bottom Panel (Responsive Grid) -->
-    <!-- On mobile: height 40vh (expandable). On desktop: fixed height 300px -->
     <div id="bottom-panel" class="bg-[#181a1f] border-t border-[#2b2d35] flex flex-col md:flex-row w-full z-10 shrink-0 h-[45vh] md:h-[320px] overflow-y-auto md:overflow-hidden">
-        
-        <!-- Col 1: Project Info & Search -->
         <div class="w-full md:w-1/3 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2b2d35]" id="panel-col1"></div>
-        
-        <!-- Col 2: Node Editor -->
         <div class="w-full md:w-1/3 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2b2d35]" id="panel-col2"></div>
-        
-        <!-- Col 3: Relationships -->
         <div class="w-full md:w-1/3 flex flex-col p-4 md:p-5" id="panel-col3"></div>
     </div>
 
-    <!-- Custom Modals -->
     <div id="confirm-modal" class="modal-overlay">
         <div class="modal-box">
             <h3 class="text-lg font-semibold text-white mb-2" id="confirm-title">Confirm Action</h3>
@@ -248,16 +227,14 @@
         let rotX = 0, rotY = 0, currentAutoRotX = BASE_ROT_X, currentAutoRotY = BASE_ROT_Y;
         let targetAutoRotX = BASE_ROT_X, targetAutoRotY = BASE_ROT_Y;
 
-        // Interaction State
         let isDragging = false, isDraggingNode = false, draggedNodeId = null;
         let dragOffsetX = 0, dragOffsetY = 0;
         let lastMouseX = 0, lastMouseY = 0;
         let initialPinchDist = null, initialZoom = 1;
-        let hasMovedSinceDown = false; // To distinguish click from drag
+        let hasMovedSinceDown = false;
         
         let lastInteractionTime = Date.now();
         const IDLE_DELAY_MS = 10000; 
-        let deleteHoldTimer = null;
         let confirmCallback = null;
 
         const canvas = document.getElementById('sphereCanvas');
@@ -344,7 +321,7 @@
                 name: name,
                 nodes: [{ id: generateId(), title: 'Central Idea', desc: '', parentId: null, links: [], px: 0, py: 0, pz: -CONFIG.sphereRadius, hat: 'neutral' }]
             };
-            switchFile(id); toggleDrawer(); // Close drawer on new
+            switchFile(id); toggleDrawer();
         }
 
         function switchFile(id) {
@@ -359,7 +336,7 @@
             }));
             
             renderFileManager(); renderBottomPanel();
-            if(window.innerWidth < 768) document.getElementById('drawer-overlay').classList.remove('active'); document.getElementById('file-drawer').classList.remove('open');
+            if(window.innerWidth < 768) { document.getElementById('drawer-overlay').classList.remove('active'); document.getElementById('file-drawer').classList.remove('open'); }
         }
 
         function renderFileManager() {
@@ -367,26 +344,15 @@
             list.innerHTML = Object.keys(fileSystem.files).map(id => `
                 <div class="file-item ${id === fileSystem.currentId ? 'active' : ''}" onclick="switchFile('${id}')">
                     <span class="truncate w-full pr-2">${fileSystem.files[id].name}</span>
-                    <div class="btn-delete-hold" 
-                         onmousedown="startDeleteFile(event, '${id}')" onmouseup="cancelDeleteFile(event)" onmouseleave="cancelDeleteFile(event)"
-                         ontouchstart="startDeleteFile(event, '${id}')" ontouchend="cancelDeleteFile(event)"
-                         title="Hold to delete">✕<div class="delete-progress"></div>
-                    </div>
+                    <div class="btn-delete" onclick="promptDeleteFile(event, '${id}')" title="Delete Project">✕</div>
                 </div>
             `).join('');
         }
 
-        function startDeleteFile(e, id) {
-            e.stopPropagation(); e.preventDefault(); // prevent touch click conflict
-            const progress = e.currentTarget.querySelector('.delete-progress');
-            let w = 0; progress.style.width = '0%';
-            deleteHoldTimer = setInterval(() => {
-                w += 10; progress.style.width = w + '%';
-                if (w >= 100) { clearInterval(deleteHoldTimer); executeDeleteFile(id); }
-            }, 50);
+        function promptDeleteFile(e, id) {
+            e.stopPropagation(); e.preventDefault();
+            showConfirm("Delete Project", `Are you sure you want to delete "${fileSystem.files[id].name}"?`, () => executeDeleteFile(id));
         }
-
-        function cancelDeleteFile(e) { e.stopPropagation(); clearInterval(deleteHoldTimer); if(e.currentTarget) e.currentTarget.querySelector('.delete-progress').style.width = '0%'; }
 
         function executeDeleteFile(id) {
             if (Object.keys(fileSystem.files).length <= 1) { showToast("Cannot delete the last project"); return; }
@@ -394,6 +360,24 @@
             if (fileSystem.currentId === id) switchFile(Object.keys(fileSystem.files)[0]);
             else { saveData(); renderFileManager(); }
             showToast("Project deleted");
+        }
+
+        // Global Updater Functions for UI bindings
+        function updateProjectName(name) {
+            if(fileSystem.currentId && fileSystem.files[fileSystem.currentId]) {
+                fileSystem.files[fileSystem.currentId].name = name;
+                saveData(); renderFileManager(); showToast('Name updated');
+            }
+        }
+        function updateNodeData(id, field, value) {
+            lastInteractionTime = Date.now();
+            const n = nodes.find(x => x.id === id);
+            if (n) { n[field] = value; saveData(); }
+            if (field === 'hat') renderBottomPanel();
+        }
+        function removeLink(sourceId, targetId) {
+            const n = nodes.find(x => x.id === sourceId);
+            if (n && n.links) { n.links = n.links.filter(id => id !== targetId); saveData(); renderBottomPanel(); }
         }
 
         function getEventPos(e) {
@@ -408,7 +392,6 @@
             lastInteractionTime = Date.now();
             hasMovedSinceDown = false;
             
-            // Handle Pinch Zoom initialization
             if (e.touches && e.touches.length === 2) {
                 isDragging = false; isDraggingNode = false;
                 initialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -451,7 +434,7 @@
 
         function handlePointerMove(e) {
             if (e.touches && e.touches.length === 2 && initialPinchDist) {
-                if(!is2DMode) return; // Pinch only in 2D
+                if(!is2DMode) return; 
                 e.preventDefault();
                 const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 zoom2D = Math.max(0.1, Math.min(initialZoom * (currentDist / initialPinchDist), 5));
@@ -471,7 +454,6 @@
                 const node = nodes.find(n => n.id === draggedNodeId);
                 if (node) {
                     node.pos.x = worldMouseX + dragOffsetX; node.pos.y = worldMouseY + dragOffsetY; node.isBeingDragged = true;
-                    // Simple sibling reorder check
                     const siblings = nodes.filter(n => n.parentId === node.parentId);
                     const idx = siblings.findIndex(s => s.id === node.id);
                     if (idx > 0 && node.pos.x < siblings[idx - 1].pos.x) { let t = nodes[nodes.findIndex(n => n.id === node.id)]; nodes[nodes.findIndex(n => n.id === node.id)] = nodes[nodes.findIndex(n => n.id === siblings[idx-1].id)]; nodes[nodes.findIndex(n => n.id === siblings[idx-1].id)] = t; saveData(); }
@@ -487,16 +469,14 @@
 
         function handlePointerUp() {
             if (isDraggingNode && draggedNodeId) { const n = nodes.find(n => n.id === draggedNodeId); if (n) n.isBeingDragged = false; }
-            if (isDragging && !hasMovedSinceDown && !isLinkingMode) { selectedNodeId = null; renderBottomPanel(); } // Clicked on empty space
+            if (isDragging && !hasMovedSinceDown && !isLinkingMode) { selectedNodeId = null; renderBottomPanel(); }
             isDragging = false; isDraggingNode = false; draggedNodeId = null; initialPinchDist = null;
         }
 
-        // Attach Mouse Events
         container.addEventListener('mousedown', handlePointerDown);
         window.addEventListener('mousemove', handlePointerMove, {passive: false});
         window.addEventListener('mouseup', handlePointerUp);
         
-        // Attach Touch Events (passive: false is critical for preventDefault to work and stop scrolling)
         container.addEventListener('touchstart', handlePointerDown, {passive: false});
         window.addEventListener('touchmove', handlePointerMove, {passive: false});
         window.addEventListener('touchend', handlePointerUp);
@@ -512,7 +492,7 @@
 
         function update2DTreeLayout() {
             const roots = nodes.filter(n => !n.parentId);
-            let currentX = 0; const hSpace = 200, vSpace = 140; // Increased spacing for touch targets
+            let currentX = 0; const hSpace = 200, vSpace = 140; 
             function traverse(node, depth) {
                 const children = nodes.filter(n => n.parentId === node.id);
                 if (children.length === 0) { node.target2D = { x: currentX, y: depth * vSpace }; currentX += hSpace; return node.target2D.x; }
@@ -634,7 +614,6 @@
                 const fSize = Math.max(CONFIG.baseFontSize * node.scale, 10);
                 ctx.font = `${isHi ? '600' : '500'} ${fSize}px 'Inter', sans-serif`;
                 
-                // Bigger touch targets by default due to scaling
                 const pW = ctx.measureText(node.title).width + (CONFIG.nodePaddingX * 2 * node.scale);
                 const pH = fSize + (CONFIG.nodePaddingY * 2 * node.scale);
                 node.width = pW; node.height = pH;
@@ -670,9 +649,7 @@
         }
 
         function cancelCrossLink() { 
-            isLinkingMode = false; 
-            linkSourceId = null; 
-            renderBottomPanel(); 
+            isLinkingMode = false; linkSourceId = null; renderBottomPanel(); 
         }
 
         function createNewNode(parentId) {
@@ -697,13 +674,11 @@
             const col1 = document.getElementById('panel-col1'); const col2 = document.getElementById('panel-col2'); const col3 = document.getElementById('panel-col3');
             const projectName = fileSystem.currentId ? fileSystem.files[fileSystem.currentId].name : '';
 
-            // Handle Mobile Expansion logic
             const panelContainer = document.getElementById('bottom-panel');
             if(window.innerWidth < 768) {
-                // On mobile: collapse if nothing selected, expand if selected
-                if (!selectedNodeId && !isLinkingMode) panelContainer.style.height = "160px"; // Only show top part (Search/Hats)
-                else panelContainer.style.height = "55vh"; // Expand to show editor
-            } else panelContainer.style.height = "320px"; // Fixed for desktop
+                if (!selectedNodeId && !isLinkingMode) panelContainer.style.height = "160px"; 
+                else panelContainer.style.height = "55vh";
+            } else panelContainer.style.height = "320px";
 
             // COL 1: System & Filter
             col1.innerHTML = `
@@ -720,7 +695,7 @@
                         </div>
                     </div>
                     <div>
-                        <input type="text" value="${projectName}" onchange="if(fileSystem.currentId) { fileSystem.files[fileSystem.currentId].name = this.value; saveData(); renderFileManager(); showToast('Name updated'); }" class="input-field w-full px-4 text-sm font-medium mb-3" placeholder="Project Name">
+                        <input type="text" value="${projectName}" onchange="updateProjectName(this.value)" class="input-field w-full px-4 font-medium mb-3" placeholder="Project Name">
                     </div>
                 </div>
             `;
@@ -734,20 +709,20 @@
             const node = nodes.find(n => n.id === (isLinkingMode ? linkSourceId : selectedNodeId));
             if (!node) return;
 
-            // COL 2: Editor
+            // COL 2: Editor - FIXED INLINE EVENT HANDLERS
             col2.innerHTML = `
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-xs text-slate-500 bg-slate-800/50 px-2 py-1 rounded cursor-pointer active:bg-slate-700" onclick="copyToClipboard('${node.id}')">ID: ${node.id}</span>
-                    <button onclick="${isLinkingMode ? 'isLinkingMode=false; linkSourceId=null; renderBottomPanel();' : 'selectedNodeId=null; renderBottomPanel();'}" class="btn btn-secondary px-3 text-xs min-h-[32px] py-1">Deselect ✕</button>
+                    <button onclick="${isLinkingMode ? 'cancelCrossLink()' : 'selectedNodeId=null; renderBottomPanel();'}" class="btn btn-secondary px-3 text-xs min-h-[32px] py-1">Deselect ✕</button>
                 </div>
                 <div class="flex flex-col gap-4 flex-grow ${isLinkingMode ? 'opacity-30 pointer-events-none' : ''}">
-                    <input type="text" value="${node.title}" oninput="node.title=this.value; saveData();" class="input-field w-full px-4 text-[15px] font-semibold" placeholder="Node Title">
+                    <input type="text" value="${node.title}" oninput="updateNodeData('${node.id}', 'title', this.value)" class="input-field w-full px-4 font-semibold" placeholder="Node Title">
                     <div class="flex items-center gap-3 bg-[#0f1115] p-3 rounded-xl border border-[#2b2d35] overflow-x-auto">
                         ${['neutral', 'white', 'red', 'black', 'yellow', 'green', 'blue'].map(h => `
-                            <button onclick="node.hat='${h}'; saveData(); renderBottomPanel();" class="hat-btn hat-${h} ${node.hat === h ? 'active' : 'opacity-40'}"></button>
+                            <button onclick="updateNodeData('${node.id}', 'hat', '${h}')" class="hat-btn hat-${h} ${node.hat === h ? 'active' : 'opacity-40'}"></button>
                         `).join('')}
                     </div>
-                    <textarea oninput="node.desc=this.value; saveData();" class="input-field w-full px-4 py-3 text-sm resize-none flex-grow" placeholder="Add detailed notes here...">${node.desc || ''}</textarea>
+                    <textarea oninput="updateNodeData('${node.id}', 'desc', this.value)" class="input-field w-full px-4 py-3 resize-none flex-grow" placeholder="Add detailed notes here...">${node.desc || ''}</textarea>
                 </div>
             `;
 
@@ -757,7 +732,7 @@
                     <div class="h-full flex flex-col items-center justify-center border-2 border-dashed border-sky-500/50 bg-sky-500/10 rounded-xl p-6 text-center">
                         <div class="font-semibold text-sky-400 mb-2 text-lg">Select Target</div>
                         <div class="text-sm text-gray-300 mb-6">Tap any other node on the canvas to draw a connection line.</div>
-                        <button onclick="isLinkingMode=false; linkSourceId=null; renderBottomPanel();" class="btn btn-secondary w-full py-3">Cancel Linking</button>
+                        <button onclick="cancelCrossLink()" class="btn btn-secondary w-full py-3">Cancel Linking</button>
                     </div>
                 `;
             } else {
@@ -784,7 +759,7 @@
                                 ${cross.length > 0 ? cross.map(c => `
                                     <div class="flex justify-between items-center bg-[#0f1115] p-2 rounded-lg border border-[#2b2d35]">
                                         <div class="text-sm cursor-pointer text-slate-300 truncate pl-1 flex-1" onclick="selectedNodeId='${c.id}'; renderBottomPanel();">⇌ ${c.title}</div>
-                                        <button onclick="node.links=node.links.filter(id=>id!=='${c.id}'); saveData(); renderBottomPanel();" class="text-xs text-red-400 px-3 py-2 rounded active:bg-red-900/30">✕</button>
+                                        <button onclick="removeLink('${node.id}', '${c.id}')" class="text-xs text-red-400 px-3 py-2 rounded active:bg-red-900/30">✕</button>
                                     </div>
                                 `).join('') : `<div class="text-sm text-gray-600 italic p-1">No cross-links</div>`}
                             </div>
