@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaCore 4.0 - Six Thinking Hats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f1115;
+            --bg-panel: #181a1f;
+            --bg-hover: #23252b;
+            --border-color: #2b2d35;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            /* Grayscale Accent (Slate 500) */
+            --accent: #64748b;
+            --accent-hover: #475569;
+            --accent-dim: rgba(100, 116, 139, 0.15);
+            /* Danger Grayscale */
+            --danger: #cbd5e1;
+            --danger-dim: rgba(203, 213, 225, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .modern-panel {
+            background-color: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+        }
+        .col-divider { border-right: 1px solid var(--border-color); }
+
+        .input-field {
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .input-field:focus { 
+            outline: none; 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 2px var(--accent-dim); 
+        }
+        
+        .btn-primary { 
+            background-color: var(--accent); 
+            color: #ffffff; 
+            border: none; 
+            border-radius: 0.5rem; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: background-color 0.2s; 
+        }
+        .btn-primary:hover { background-color: var(--accent-hover); }
+        
+        .btn-secondary { 
+            background-color: transparent; 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            border-radius: 0.5rem;
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .btn-secondary:hover { background-color: var(--bg-hover); }
+
+        .btn-danger {
+            background-color: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover { background-color: var(--danger-dim); }
+
+        .item-card { 
+            border: 1px solid var(--border-color); 
+            background: var(--bg-base); 
+            border-radius: 0.5rem;
+            transition: border-color 0.2s;
+        }
+
+        #canvas-container {
+            cursor: crosshair;
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        #canvas-container:active { cursor: move; }
+
+        /* File Manager Styles */
+        #file-manager {
+            position: absolute; top: 20px; left: 20px; z-index: 40; width: 260px;
+            background: rgba(24, 26, 31, 0.85); 
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color); 
+            border-radius: 0.75rem;
+            padding: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .file-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 8px; font-size: 13px; cursor: pointer; border-radius: 0.375rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .file-item:hover { background: var(--bg-hover); color: var(--text-main); }
+        .file-item.active { background: var(--accent-dim); color: var(--text-main); font-weight: 500; }
+        
+        .btn-delete-hold {
+            position: relative; width: 20px; height: 20px; text-align: center; line-height: 20px;
+            color: var(--text-muted); user-select: none; border-radius: 4px; overflow: hidden;
+        }
+        .btn-delete-hold:hover { color: var(--text-main); background: var(--bg-hover); }
+        .delete-progress {
+            position: absolute; bottom: 0; left: 0; height: 100%; background: var(--text-muted); width: 0%; transition: width 0.1s; z-index: -1;
+        }
+        
+        /* View Toggle Style */
+        #view-toggle {
+            position: absolute; top: 20px; right: 20px; z-index: 50;
+            background: rgba(24, 26, 31, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        #view-toggle:hover { color: var(--text-main); border-color: var(--text-muted); }
+        #view-toggle.active { color: #ffffff; border-color: var(--accent); background: var(--accent); }
+
+        /* Hat Buttons */
+        .hat-btn {
+            width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: all 0.2s;
+        }
+        .hat-btn:hover { transform: scale(1.1); }
+        .hat-btn.active { outline: 2px solid var(--text-main); outline-offset: 2px; }
+        
+        /* Neutral Hat (No Hat) - White circle with Slate diagonal line */
+        .hat-neutral { 
+            background-color: #ffffff;
+            background-image: linear-gradient(45deg, transparent 42%, #475569 42%, #475569 58%, transparent 58%);
+            border: 1px solid #cbd5e1;
+        }
+        
+        /* The 6 Hats */
+        .hat-white { background-color: #f1f5f9; }
+        .hat-red { background-color: #f43f5e; }
+        .hat-black { background-color: #52525b; }
+        .hat-yellow { background-color: #fbbf24; }
+        .hat-green { background-color: #10b981; }
+        .hat-blue { background-color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+    <!-- File Explorer -->
+    <div id="file-manager">
+        <div class="flex justify-between items-center mb-3 pb-2 border-b border-[#2b2d35]">
+            <span class="text-xs font-semibold text-gray-300">Projects</span>
+            <div class="flex gap-1">
+                <input type="file" id="file-import" accept=".md" class="hidden" onchange="handleImport(event)">
+                <button onclick="document.getElementById('file-import').click()" class="text-xs text-gray-400 hover:text-white px-1.5 py-0.5 rounded transition-colors" title="Import Markdown">↓</button>
+                <button onclick="exportMarkdown()" class="text-xs text-gray-400 hover:text-white px-1.5 py-0.5 rounded transition-colors" title="Export Markdown">↑</button>
+                <button onclick="createNewFile()" class="text-xs bg-slate-500/20 text-slate-300 hover:bg-slate-500 hover:text-white px-2 py-0.5 rounded transition-colors" title="New File">New</button>
+            </div>
+        </div>
+        <div id="file-list" class="max-h-[200px] overflow-y-auto flex flex-col gap-1"></div>
+    </div>
+
+    <!-- View Toggle -->
+    <button id="view-toggle" onclick="toggleViewMode()">3D Mode</button>
+
+    <!-- Canvas Area -->
+    <div id="canvas-container" class="flex-grow relative">
+        <canvas id="sphereCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+        <div class="absolute top-8 left-[300px] pointer-events-none">
+            <h1 class="text-2xl font-semibold tracking-tight text-gray-100">IdeaCore 4.0</h1>
+            <p class="text-xs mt-1.5 text-gray-400" id="view-status">Rotate: Drag • Select: Click • Navigate: Arrows</p>
+        </div>
+        <div id="status-bar" class="absolute bottom-6 left-6 pointer-events-none text-xs text-gray-400 bg-[#181a1f]/80 backdrop-blur px-3 py-1.5 rounded-full border border-[#2b2d35] shadow-sm transition-all duration-300">
+            Auto-rotation active
+        </div>
+    </div>
+
+    <!-- Bottom Panel -->
+    <div class="h-[280px] modern-panel flex flex-row shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.2)] z-10 w-full">
+        <div class="w-1/3 col-divider flex flex-col p-5" id="panel-col1"></div>
+        <div class="w-1/3 col-divider flex flex-col p-5" id="panel-col2"></div>
+        <div class="w-1/3 flex flex-col p-5" id="panel-col3"></div>
+    </div>
+
+    <script>
+        // Colors mapping for canvas rendering
+        const HAT_COLORS = {
+            neutral: '100, 116, 139', // Slate 500 (Grayscale fallback)
+            white: '241, 245, 249',   // Slate 50
+            red: '244, 63, 94',       // Rose 500
+            black: '82, 82, 91',      // Zinc 500
+            yellow: '251, 191, 36',   // Amber 400
+            green: '16, 185, 129',    // Emerald 500
+            blue: '56, 189, 248'      // Sky 400
+        };
+
+        const HAT_LABELS = {
+            neutral: 'Neutral',
+            white: 'Information/Facts',
+            red: 'Emotions/Feelings',
+            black: 'Risks/Cautions',
+            yellow: 'Benefits/Positives',
+            green: 'Creativity/Alternatives',
+            blue: 'Process/Conclusions'
+        };
+
+        const CONFIG = {
+            sphereRadius: 300,
+            focalLength: 600,
+            baseFontSize: 13,
+            nodePaddingX: 16,
+            nodePaddingY: 10,
+            physics: { repulsion: 4500, springLength: 150, springK: 0.04, dampening: 0.82 },
+            storageKey: 'ideacore_data_v4'
+        };
+
+        let fileSystem = { currentId: null, files: {} };
+        let nodes = [];
+        let selectedNodeId = null;
+        let rawSearchQuery = '';
+        let searchQuery = '';
+        let activeHatFilter = null;
+        let is2DMode = false;
+        
+        let panX = 0, panY = 0, zoom2D = 1, isManualPan2D = false;
+        let isLinkingMode = false;
+        let linkSourceId = null;
+
+        const BASE_ROT_X = 0.002;
+        const BASE_ROT_Y = 0.003;
+        let rotX = 0, rotY = 0;
+        let currentAutoRotX = BASE_ROT_X, currentAutoRotY = BASE_ROT_Y;
+        let targetAutoRotX = BASE_ROT_X, targetAutoRotY = BASE_ROT_Y;
+
+        let isDragging = false;
+        let isDraggingNode = false;
+        let draggedNodeId = null;
+        let dragOffsetX = 0, dragOffsetY = 0;
+        
+        let lastMouseX = 0, lastMouseY = 0;
+        let lastInteractionTime = Date.now();
+        const IDLE_DELAY_MS = 15000; 
+        let deleteHoldTimer = null;
+
+        const canvas = document.getElementById('sphereCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+        const statusBar = document.getElementById('status-bar');
+        const viewToggle = document.getElementById('view-toggle');
+
+        class Vector3 {
+            constructor(x, y, z) { this.x = x; this.y = y; this.z = z; }
+            magnitude() { return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z); }
+            normalize() {
+                const m = this.magnitude();
+                if (m > 0) { this.x /= m; this.y /= m; this.z /= m; }
+                return this;
+            }
+            multiply(scalar) { this.x *= scalar; this.y *= scalar; this.z *= scalar; return this; }
+            add(v) { this.x += v.x; this.y += v.y; this.z += v.z; return this; }
+            sub(v) { return new Vector3(this.x - v.x, this.y - v.y, this.z - v.z); }
+        }
+
+        function normalizeAngle(angle) {
+            angle = angle % (Math.PI * 2);
+            if (angle < 0) angle += Math.PI * 2;
+            return angle;
+        }
+
+        function lerpAngle(current, target, t) {
+            current = normalizeAngle(current); target = normalizeAngle(target);
+            let diff = target - current;
+            if (diff > Math.PI) diff -= Math.PI * 2;
+            if (diff < -Math.PI) diff += Math.PI * 2;
+            return current + diff * t;
+        }
+
+        function generateId() { return Math.random().toString(36).substr(2, 9); }
+
+        // --- Data Management (File System) ---
+        function loadData() {
+            const saved = localStorage.getItem(CONFIG.storageKey);
+            const oldSaved = localStorage.getItem('ideacore_data_v3');
+
+            if (saved) {
+                fileSystem = JSON.parse(saved);
+            } else if (oldSaved) {
+                try {
+                    const parsed = JSON.parse(oldSaved);
+                    const newId = 'FILE_' + generateId();
+                    let oldNodes = [];
+                    if(parsed.files && parsed.currentId) {
+                        oldNodes = parsed.files[parsed.currentId].nodes;
+                    } else {
+                        oldNodes = parsed; 
+                    }
+                    oldNodes.forEach(n => { if(!n.hat) n.hat = 'neutral'; });
+                    fileSystem.files[newId] = { name: 'Migrated Data (v3)', nodes: oldNodes };
+                    fileSystem.currentId = newId;
+                } catch(e) { console.error("Migration failed", e); }
+            }
+
+            if (!fileSystem.currentId || Object.keys(fileSystem.files).length === 0) {
+                createNewFile("Project 1");
+            } else {
+                switchFile(fileSystem.currentId);
+            }
+        }
+
+        function saveData() {
+            if (!fileSystem.currentId) return;
+            
+            fileSystem.files[fileSystem.currentId].nodes = nodes.map(n => ({
+                id: n.id, title: n.title, desc: n.desc, parentId: n.parentId, links: n.links || [],
+                px: n.pos.x, py: n.pos.y, pz: n.pos.z, hat: n.hat || 'neutral'
+            }));
+            
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify(fileSystem));
+        }
+
+        function createNewFile(nameParam = null) {
+            const id = 'FILE_' + generateId();
+            const name = nameParam || `Project ${Object.keys(fileSystem.files).length + 1}`;
+            
+            fileSystem.files[id] = {
+                name: name,
+                nodes: [{
+                    id: generateId(), title: 'Root Node', desc: 'Starting point',
+                    parentId: null, links: [], px: 0, py: 0, pz: -CONFIG.sphereRadius, hat: 'neutral'
+                }]
+            };
+            switchFile(id);
+        }
+
+        function switchFile(id) {
+            if (!fileSystem.files[id]) return;
+            if (fileSystem.currentId && fileSystem.currentId !== id) saveData(); 
+            
+            fileSystem.currentId = id;
+            selectedNodeId = null;
+            searchQuery = '';
+            rawSearchQuery = '';
+            activeHatFilter = null;
+            cancelCrossLink(); 
+            
+            nodes = fileSystem.files[id].nodes.map(n => ({
+                id: n.id, title: n.title, desc: n.desc || '', parentId: n.parentId, links: n.links || [],
+                hat: n.hat || 'neutral',
+                pos: new Vector3(n.px || 0, n.py || 0, n.pz || 0), vel: new Vector3(0,0,0),
+                projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0
+            }));
+            
+            renderFileManager();
+            renderBottomPanel();
+        }
+
+        function updateCurrentFileName(newName) {
+            if(fileSystem.currentId && fileSystem.files[fileSystem.currentId]) {
+                fileSystem.files[fileSystem.currentId].name = newName;
+                saveData();
+                renderFileManager();
+            }
+        }
+
+        // --- File Manager UI ---
+        function renderFileManager() {
+            const list = document.getElementById('file-list');
+            list.innerHTML = Object.keys(fileSystem.files).map(id => `
+                <div class="file-item ${id === fileSystem.currentId ? 'active' : ''}" onclick="switchFile('${id}')">
+                    <span class="truncate w-[190px]">${fileSystem.files[id].name}</span>
+                    <div class="btn-delete-hold" 
+                         onmousedown="startDeleteFile(event, '${id}')" 
+                         onmouseup="cancelDeleteFile(event)" 
+                         onmouseleave="cancelDeleteFile(event)"
+                         title="Hold to delete">✕<div class="delete-progress"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startDeleteFile(e, id) {
+            e.stopPropagation();
+            const progress = e.currentTarget.querySelector('.delete-progress');
+            let w = 0; progress.style.width = '0%';
+            deleteHoldTimer = setInterval(() => {
+                w += 5; progress.style.width = w + '%';
+                if (w >= 100) { clearInterval(deleteHoldTimer); executeDeleteFile(id); }
+            }, 50);
+        }
+
+        function cancelDeleteFile(e) {
+            e.stopPropagation(); clearInterval(deleteHoldTimer);
+            if(e.currentTarget) e.currentTarget.querySelector('.delete-progress').style.width = '0%';
+        }
+
+        function executeDeleteFile(id) {
+            if (Object.keys(fileSystem.files).length <= 1) createNewFile(); 
+            delete fileSystem.files[id];
+            if (fileSystem.currentId === id) switchFile(Object.keys(fileSystem.files)[0]);
+            else { saveData(); renderFileManager(); }
+        }
+
+        // --- Data Import & Export ---
+        function exportMarkdown() {
+            let md = "";
+            const roots = nodes.filter(n => !n.parentId);
+            function traverse(node, depth) {
+                const prefix = "#".repeat(depth);
+                md += `${prefix} ${node.title}\n`;
+                if (node.hat && node.hat !== 'neutral') md += `> Hat: ${node.hat}\n`;
+                if (node.desc && node.desc.trim() !== '') md += `${node.desc}\n`;
+                if (node.links && node.links.length > 0) {
+                    const linkNames = node.links.map(lid => {
+                        const target = nodes.find(n => n.id === lid);
+                        return target ? target.title : null;
+                    }).filter(Boolean);
+                    if(linkNames.length > 0) md += `> Cross-links: ${linkNames.join(', ')}\n`;
+                }
+                md += "\n";
+                nodes.filter(n => n.parentId === node.id).forEach(c => traverse(c, depth + 1));
+            }
+            roots.forEach(r => traverse(r, 1));
+            
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; 
+            const currentFileName = fileSystem.currentId ? fileSystem.files[fileSystem.currentId].name : 'Project_Export';
+            a.download = `${currentFileName.replace(/\s+/g, '_')}.md`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const fileName = file.name.replace(/\.md$/i, '');
+            const reader = new FileReader();
+            reader.onload = function(e) { parseMarkdown(e.target.result, fileName); event.target.value = ''; };
+            reader.readAsText(file);
+        }
+
+        function parseMarkdown(text, fileName) {
+            const lines = text.split('\n');
+            let newNodes = []; let depthStack = []; 
+            let currentDesc = []; let currentNode = null;
+
+            for(let i=0; i<lines.length; i++) {
+                const line = lines[i].trimEnd();
+                const headingMatch = line.match(/^(#+)\s+(.*)/);
+                if (headingMatch) {
+                    if (currentNode) currentNode.desc = currentDesc.join('\n').trim();
+                    const depth = headingMatch[1].length;
+                    const title = headingMatch[2].trim();
+                    const id = generateId();
+                    
+                    let parentId = null;
+                    while(depthStack.length > 0 && depthStack[depthStack.length-1].depth >= depth) depthStack.pop();
+                    if (depthStack.length > 0) parentId = depthStack[depthStack.length-1].id;
+                    
+                    const u = Math.random(); const v = Math.random();
+                    const pos = new Vector3(
+                        Math.sin(Math.acos(2*v-1)) * Math.cos(2*Math.PI*u),
+                        Math.sin(Math.acos(2*v-1)) * Math.sin(2*Math.PI*u),
+                        Math.cos(Math.acos(2*v-1))
+                    ).multiply(CONFIG.sphereRadius);
+
+                    currentNode = {
+                        id, title, desc: '', parentId, links: [], hat: 'neutral',
+                        pos: pos, vel: new Vector3(0,0,0),
+                        projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0
+                    };
+                    newNodes.push(currentNode);
+                    depthStack.push({depth, id}); currentDesc = [];
+                } else if (currentNode && (line.startsWith('> Hat:') || line.startsWith('> หมวก:'))) {
+                    currentNode.hat = line.replace('> Hat:', '').replace('> หมวก:', '').trim();
+                } else if (currentNode && !line.startsWith('> Cross-links:') && line !== '') {
+                    currentDesc.push(line);
+                }
+            }
+            if (currentNode) currentNode.desc = currentDesc.join('\n').trim();
+            if (newNodes.length > 0) {
+                const newFileId = 'FILE_' + generateId();
+                fileSystem.files[newFileId] = { name: fileName || 'Imported Project', nodes: newNodes };
+                switchFile(newFileId);
+            }
+        }
+
+        // --- Toggle View ---
+        function toggleViewMode() {
+            is2DMode = !is2DMode;
+            viewToggle.classList.toggle('active', is2DMode);
+            viewToggle.innerText = is2DMode ? "2D Mode" : "3D Mode";
+            document.getElementById('view-status').innerText = is2DMode ? "Pan: Drag • Zoom: Scroll • Navigate: Arrows" : "Rotate: Drag • Select: Click • Navigate: Arrows";
+            
+            if (is2DMode) { panX = 0; panY = 0; zoom2D = 1; isManualPan2D = false; } 
+            else {
+                nodes.forEach(n => {
+                    n.pos.z += (Math.random() - 0.5) * CONFIG.sphereRadius * 0.8;
+                    n.vel.z += (Math.random() - 0.5) * 15;
+                });
+            }
+        }
+
+        // --- 2D Layout Algorithm ---
+        function update2DTreeLayout() {
+            const roots = nodes.filter(n => !n.parentId);
+            let currentX = 0;
+            const horizontalSpacing = 180; const verticalSpacing = 120;
+
+            function traverse(node, depth) {
+                const children = nodes.filter(n => n.parentId === node.id);
+                if (children.length === 0) {
+                    node.target2D = { x: currentX, y: depth * verticalSpacing };
+                    currentX += horizontalSpacing; return node.target2D.x;
+                } else {
+                    let childXs = [];
+                    children.forEach(c => childXs.push(traverse(c, depth + 1)));
+                    let avgX = childXs.reduce((a, b) => a + b, 0) / childXs.length;
+                    node.target2D = { x: avgX, y: depth * verticalSpacing };
+                    return avgX;
+                }
+            }
+            roots.forEach(r => { traverse(r, 0); currentX += horizontalSpacing * 0.5; });
+            
+            const allY = nodes.map(n => n.target2D ? n.target2D.y : 0);
+            const allX = nodes.map(n => n.target2D ? n.target2D.x : 0);
+            if (allY.length > 0 && allX.length > 0) {
+                const offsetY = (Math.min(...allY) + Math.max(...allY)) / 2;
+                const offsetX = (Math.min(...allX) + Math.max(...allX)) / 2;
+                nodes.forEach(n => { if(n.target2D) { n.target2D.x -= offsetX; n.target2D.y -= offsetY; } });
+            }
+        }
+
+        // Helper to swap nodes ordering inside array
+        function swapNodesInArray(id1, id2) {
+            const idx1 = nodes.findIndex(n => n.id === id1);
+            const idx2 = nodes.findIndex(n => n.id === id2);
+            if (idx1 !== -1 && idx2 !== -1) {
+                const temp = nodes[idx1];
+                nodes[idx1] = nodes[idx2];
+                nodes[idx2] = temp;
+                saveData(); // Save structural ordering
+            }
+        }
+
+        // --- Physics & Render ---
+        function updatePhysics() {
+            const MAX_VELOCITY = 15;
+
+            if (is2DMode) {
+                update2DTreeLayout();
+                for (let i = 0; i < nodes.length; i++) {
+                    const n = nodes[i];
+                    if (n.isBeingDragged) {
+                        n.vel.x = 0; n.vel.y = 0; n.vel.z = 0;
+                        continue; // Skip moving logic for current dragged node
+                    }
+                    if (n.target2D) { 
+                        n.vel.x += (n.target2D.x - n.pos.x) * 0.1; 
+                        n.vel.y += (n.target2D.y - n.pos.y) * 0.1; 
+                    }
+                    n.vel.z += (0 - n.pos.z) * 0.15; 
+                    if (n.vel.magnitude() > MAX_VELOCITY) n.vel.normalize().multiply(MAX_VELOCITY);
+                    n.pos.add(n.vel); n.vel.multiply(CONFIG.physics.dampening);
+                }
+                return;
+            }
+
+            for (let i = 0; i < nodes.length; i++) {
+                let force = new Vector3(0,0,0);
+                const n1 = nodes[i];
+                force.add(new Vector3(-n1.pos.x, -n1.pos.y, -n1.pos.z).multiply(0.001));
+
+                for (let j = 0; j < nodes.length; j++) {
+                    if (i === j) continue;
+                    const n2 = nodes[j];
+                    let diff = n1.pos.sub(n2.pos);
+                    let distSq = diff.x*diff.x + diff.y*diff.y + diff.z*diff.z;
+                    if (distSq < 1.0) distSq = 1.0; 
+                    
+                    let repMag = CONFIG.physics.repulsion / Math.max(distSq, 10);
+                    force.add(diff.normalize().multiply(repMag));
+
+                    let isConnected = (n1.parentId === n2.id || n2.parentId === n1.id);
+                    if (!isConnected && n1.links) isConnected = n1.links.includes(n2.id);
+                    if (!isConnected && n2.links) isConnected = n2.links.includes(n1.id);
+
+                    if (isConnected) {
+                        let attrDiff = n2.pos.sub(n1.pos);
+                        let displacement = attrDiff.magnitude() - CONFIG.physics.springLength;
+                        force.add(attrDiff.normalize().multiply(displacement * CONFIG.physics.springK));
+                    }
+                }
+                n1.vel.add(force);
+            }
+
+            for (let i = 0; i < nodes.length; i++) {
+                const n = nodes[i];
+                if (n.vel.magnitude() > MAX_VELOCITY) n.vel.normalize().multiply(MAX_VELOCITY);
+                n.pos.add(n.vel); n.vel.multiply(CONFIG.physics.dampening); 
+                n.pos.normalize().multiply(CONFIG.sphereRadius);
+            }
+        }
+
+        function rotate3D(pos, angleX, angleY) {
+            let cosY = Math.cos(angleY), sinY = Math.sin(angleY);
+            let x1 = pos.x * cosY - pos.z * sinY; let z1 = pos.z * cosY + pos.x * sinY;
+            let cosX = Math.cos(angleX), sinX = Math.sin(angleX);
+            let y2 = pos.y * cosX - z1 * sinX; let z2 = z1 * cosX + pos.y * sinX;
+            return { x: x1, y: y2, z: z2 };
+        }
+
+        function draw() {
+            const width = container.clientWidth; const height = container.clientHeight;
+            const cx = width / 2; const cy = height / 2;
+            ctx.clearRect(0, 0, width, height);
+
+            const now = Date.now();
+            const timeSinceInteraction = now - lastInteractionTime;
+            const isIdle = timeSinceInteraction > IDLE_DELAY_MS;
+            
+            if (is2DMode) {
+                targetAutoRotX = 0; targetAutoRotY = 0;
+                rotX += (0 - rotX) * 0.1; rotY += (0 - rotY) * 0.1;
+                
+                if (!isDragging && !isDraggingNode && selectedNodeId && searchQuery === '' && !isManualPan2D && !isLinkingMode) {
+                    const focusedNode = nodes.find(n => n.id === selectedNodeId);
+                    if (focusedNode) {
+                        panX += (-focusedNode.pos.x * zoom2D - panX) * 0.08;
+                        panY += (-focusedNode.pos.y * zoom2D - panY) * 0.08;
+                        statusBar.innerText = "Status: Node Focused (2D)";
+                    }
+                } else if (isLinkingMode) statusBar.innerText = "Status: Waiting for link target";
+                else if (isDraggingNode) statusBar.innerText = "Status: Reordering node";
+                else statusBar.innerText = "Status: 2D Mode";
+            } else if (isDragging) statusBar.innerText = "Status: Free Camera";
+            else if (isLinkingMode) statusBar.innerText = "Status: Waiting for link target";
+            else if (selectedNodeId && searchQuery === '') {
+                const focusedNode = nodes.find(n => n.id === selectedNodeId);
+                if (focusedNode) {
+                    let targetY = Math.atan2(focusedNode.pos.x, focusedNode.pos.z) + Math.PI;
+                    let distXZ = Math.sqrt(focusedNode.pos.x ** 2 + focusedNode.pos.z ** 2);
+                    let targetX = Math.atan2(-focusedNode.pos.y, distXZ);
+                    rotX = lerpAngle(rotX, targetX, 0.06); rotY = lerpAngle(rotY, targetY, 0.06);
+                    statusBar.innerText = "Status: Target Locked";
+                }
+            } else {
+                if (!isIdle) {
+                    targetAutoRotX = 0.0002; targetAutoRotY = 0.0003;
+                    statusBar.innerText = `Auto-rotate in ${Math.ceil((IDLE_DELAY_MS - timeSinceInteraction) / 1000)}s`;
+                } else {
+                    targetAutoRotX = BASE_ROT_X; targetAutoRotY = BASE_ROT_Y;
+                    statusBar.innerText = "Auto-rotation active";
+                }
+                currentAutoRotX += (targetAutoRotX - currentAutoRotX) * 0.05;
+                currentAutoRotY += (targetAutoRotY - currentAutoRotY) * 0.05;
+                rotX += currentAutoRotX; rotY += currentAutoRotY;
+            }
+
+            rotX = normalizeAngle(rotX); rotY = normalizeAngle(rotY);
+            updatePhysics();
+
+            let renderList = [];
+            nodes.forEach(node => {
+                if (is2DMode) {
+                    node.projX = cx + panX + node.pos.x * zoom2D; node.projY = cy + panY + node.pos.y * zoom2D;
+                    node.scale = zoom2D; node.zIndex = 0;
+                } else {
+                    let rotated = rotate3D(node.pos, rotX, rotY);
+                    let scale = CONFIG.focalLength / (CONFIG.focalLength + rotated.z + CONFIG.sphereRadius * 0.5);
+                    node.projX = cx + rotated.x * scale; node.projY = cy + rotated.y * scale;
+                    node.scale = scale; node.zIndex = -rotated.z;
+                }
+                renderList.push(node);
+            });
+            renderList.sort((a, b) => a.zIndex - b.zIndex);
+
+            // Draw Lines
+            renderList.forEach(node => {
+                if (node.parentId) {
+                    const parent = nodes.find(n => n.id === node.parentId);
+                    if (parent) drawLine(parent, node, false); 
+                }
+                if (node.links) {
+                    node.links.forEach(linkId => {
+                        const target = nodes.find(n => n.id === linkId);
+                        if (target) drawLine(node, target, true); 
+                    });
+                }
+            });
+
+            function drawLine(startNode, endNode, isCrossLink) {
+                const avgScale = (startNode.scale + endNode.scale) / 2;
+                let opacity = Math.min(Math.max(avgScale, 0.15), 0.8);
+                const isHighlight = selectedNodeId === startNode.id || selectedNodeId === endNode.id;
+                
+                // Dim lines if filter is active
+                if (activeHatFilter && (startNode.hat !== activeHatFilter && endNode.hat !== activeHatFilter)) opacity *= 0.1;
+                // Dim lines on search
+                if (searchQuery !== '') {
+                    const sMatch = startNode.title.toLowerCase().includes(searchQuery);
+                    const eMatch = endNode.title.toLowerCase().includes(searchQuery);
+                    if (!sMatch && !eMatch) opacity *= 0.15; 
+                }
+
+                ctx.beginPath(); ctx.moveTo(startNode.projX, startNode.projY);
+                if (is2DMode && !isCrossLink) {
+                    const controlY = (startNode.projY + endNode.projY) / 2;
+                    ctx.bezierCurveTo(startNode.projX, controlY, endNode.projX, controlY, endNode.projX, endNode.projY);
+                } else ctx.lineTo(endNode.projX, endNode.projY);
+                
+                ctx.lineWidth = isHighlight && searchQuery === '' ? 2.5 * avgScale : 1.2 * avgScale;
+                ctx.setLineDash(isCrossLink ? [6, 6] : []);
+
+                // Determine line color based on endNode (child)
+                let lineRGB = '100, 116, 139'; // Default Grayscale (Slate 500)
+                if (endNode.hat && endNode.hat !== 'neutral') {
+                    lineRGB = HAT_COLORS[endNode.hat]; // Color based on child node's hat
+                } else if (isHighlight && searchQuery === '') {
+                    lineRGB = '148, 163, 184'; // Lighter Slate for highlighted neutral paths
+                }
+
+                ctx.strokeStyle = `rgba(${lineRGB}, ${isHighlight && searchQuery === '' ? opacity + 0.3 : opacity})`;
+                ctx.stroke(); ctx.setLineDash([]);
+            }
+
+            // Draw Nodes
+            renderList.forEach(node => {
+                const isSelected = selectedNodeId === node.id && searchQuery === '';
+                const isLinkSource = isLinkingMode && linkSourceId === node.id;
+                const isSearchMatch = searchQuery !== '' && (node.title.toLowerCase().includes(searchQuery) || (node.desc && node.desc.toLowerCase().includes(searchQuery)));
+                const isHighlight = isSelected || isSearchMatch || isLinkSource;
+
+                const fontSize = Math.max(CONFIG.baseFontSize * node.scale, 9);
+                ctx.font = `${isHighlight ? '600' : '400'} ${fontSize}px 'Inter', 'Noto Sans Thai', sans-serif`;
+                
+                const pillWidth = ctx.measureText(node.title).width + (CONFIG.nodePaddingX * 2 * node.scale);
+                const pillHeight = fontSize + (CONFIG.nodePaddingY * 2 * node.scale);
+                node.width = pillWidth; node.height = pillHeight;
+                const x = node.projX - pillWidth / 2; const y = node.projY - pillHeight / 2;
+                
+                let opacity = Math.min(Math.max(node.scale, 0.2), 1);
+                
+                // Apply Hat Filter Opacity
+                if (activeHatFilter && node.hat !== activeHatFilter) {
+                    opacity *= 0.1;
+                } else if (searchQuery !== '') {
+                    if (!isSearchMatch) opacity *= 0.15;
+                    else opacity = Math.max(opacity, 0.9); 
+                }
+                
+                if (isLinkSource) opacity = Math.abs(Math.sin(now * 0.005)) * 0.4 + 0.6;
+                if (isHighlight) opacity = 1.0;
+
+                const baseRGB = HAT_COLORS[node.hat] || HAT_COLORS.neutral;
+
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(x, y, pillWidth, pillHeight, pillHeight / 2);
+                else ctx.rect(x, y, pillWidth, pillHeight);
+                
+                if (node.hat === 'neutral') {
+                    // ไม่มีหมวก = พื้นขาว, ไม่มีเส้นขอบ, ตัวหนังสือเทาเข้ม
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fill();
+                    
+                    if (isHighlight) {
+                        ctx.shadowColor = `rgba(255, 255, 255, 0.4)`;
+                        ctx.shadowBlur = 12 * node.scale;
+                        ctx.fill(); 
+                        ctx.shadowBlur = 0;
+                    }
+                    
+                    ctx.fillStyle = `rgba(24, 26, 31, ${opacity})`; // ตัวหนังสือสีเทาเข้ม (#181a1f)
+                } else {
+                    // มีหมวก = พื้นเข้ม, เส้นสีตามหมวก, ตัวหนังสือสีขาว
+                    ctx.fillStyle = `rgba(24, 26, 31, ${opacity})`; // พื้นหลังสีเทาเกือบดำ
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = `rgba(${baseRGB}, ${opacity})`;
+                    ctx.lineWidth = (isHighlight ? 2.5 : 1.5) * node.scale;
+                    
+                    if (isHighlight) {
+                        ctx.shadowColor = `rgba(${baseRGB}, 0.5)`;
+                        ctx.shadowBlur = 12 * node.scale;
+                    }
+                    ctx.stroke(); // STROKE CALLED ONLY FOR HAT NODES
+                    ctx.shadowBlur = 0;
+
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; // ตัวหนังสือสีขาว
+                }
+
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(node.title, node.projX, node.projY + (fontSize * 0.05));
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        // --- Inputs & Interactions ---
+        function registerInteraction() { lastInteractionTime = Date.now(); }
+
+        function handleSearch(val) {
+            registerInteraction(); rawSearchQuery = val; searchQuery = val.trim().toLowerCase(); renderBottomPanel();
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) { searchInput.focus(); searchInput.setSelectionRange(val.length, val.length); }
+        }
+
+        function toggleHatFilter(hat) {
+            registerInteraction();
+            if (activeHatFilter === hat) activeHatFilter = null;
+            else activeHatFilter = hat;
+            renderBottomPanel();
+        }
+
+        container.addEventListener('mousedown', (e) => {
+            registerInteraction();
+            lastMouseX = e.clientX; lastMouseY = e.clientY;
+            
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left; const clickY = e.clientY - rect.top;
+            const cx = container.clientWidth / 2; const cy = container.clientHeight / 2;
+            
+            let clickedNode = null;
+            const sortedNodes = [...nodes].sort((a, b) => b.zIndex - a.zIndex);
+            for (let node of sortedNodes) {
+                const hw = node.width / 2; const hh = node.height / 2;
+                if (clickX >= node.projX - hw && clickX <= node.projX + hw && clickY >= node.projY - hh && clickY <= node.projY + hh) {
+                    clickedNode = node; break;
+                }
+            }
+            
+            if (clickedNode) {
+                if (isLinkingMode) {
+                    if (clickedNode.id !== linkSourceId) {
+                        const sourceNode = nodes.find(n => n.id === linkSourceId);
+                        if (!sourceNode.links) sourceNode.links = [];
+                        if (!sourceNode.links.includes(clickedNode.id)) { sourceNode.links.push(clickedNode.id); saveData(); }
+                    }
+                    cancelCrossLink();
+                } else {
+                    selectedNodeId = clickedNode.id; searchQuery = ''; rawSearchQuery = ''; isManualPan2D = false; renderBottomPanel();
+                    
+                    // Activate drag reordering if in 2D Mode
+                    if (is2DMode) {
+                        isDraggingNode = true;
+                        draggedNodeId = clickedNode.id;
+                        
+                        // Calculate offset coordinates in world space
+                        const worldMouseX = (clickX - cx - panX) / zoom2D;
+                        const worldMouseY = (clickY - cy - panY) / zoom2D;
+                        dragOffsetX = clickedNode.pos.x - worldMouseX;
+                        dragOffsetY = clickedNode.pos.y - worldMouseY;
+                    }
+                }
+            } else {
+                isDragging = true;
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
+            const cx = container.clientWidth / 2; const cy = container.clientHeight / 2;
+
+            if (isDraggingNode && draggedNodeId && is2DMode) {
+                registerInteraction();
+                const worldMouseX = (mouseX - cx - panX) / zoom2D;
+                const worldMouseY = (mouseY - cy - panY) / zoom2D;
+                
+                const node = nodes.find(n => n.id === draggedNodeId);
+                if (node) {
+                    node.pos.x = worldMouseX + dragOffsetX;
+                    node.pos.y = worldMouseY + dragOffsetY;
+                    node.isBeingDragged = true;
+                    
+                    // Identify horizontal siblings to reorder
+                    const parentId = node.parentId;
+                    const siblings = nodes.filter(n => n.parentId === parentId);
+                    const originalOrder = siblings.map(s => s.id);
+                    const draggedIndex = originalOrder.indexOf(draggedNodeId);
+                    
+                    // Swap logic on crossing threshold boundaries
+                    if (draggedIndex > 0) {
+                        const leftSibling = siblings[draggedIndex - 1];
+                        if (node.pos.x < leftSibling.pos.x) {
+                            swapNodesInArray(node.id, leftSibling.id);
+                        }
+                    }
+                    if (draggedIndex < siblings.length - 1) {
+                        const rightSibling = siblings[draggedIndex + 1];
+                        if (node.pos.x > rightSibling.pos.x) {
+                            swapNodesInArray(node.id, rightSibling.id);
+                        }
+                    }
+                }
+            } else if (isDragging) {
+                registerInteraction();
+                const dx = e.clientX - lastMouseX; const dy = e.clientY - lastMouseY;
+                if (is2DMode) { panX += dx; panY += dy; isManualPan2D = true; } 
+                else { rotY += dx * 0.005; rotX += dy * 0.005; }
+                lastMouseX = e.clientX; lastMouseY = e.clientY;
+            }
+        });
+
+        window.addEventListener('mouseup', () => { 
+            if (isDraggingNode && draggedNodeId) {
+                const node = nodes.find(n => n.id === draggedNodeId);
+                if (node) {
+                    node.isBeingDragged = false;
+                }
+            }
+            isDragging = false; 
+            isDraggingNode = false;
+            draggedNodeId = null;
+        });
+
+        container.addEventListener('wheel', (e) => {
+            if (!is2DMode) return;
+            e.preventDefault(); registerInteraction();
+            const rect = canvas.getBoundingClientRect();
+            const zoomFactor = -e.deltaY * 0.002; const oldZoom = zoom2D;
+            zoom2D = Math.max(0.1, Math.min(zoom2D * Math.exp(zoomFactor), 10));
+            panX -= ((e.clientX - rect.left) - container.clientWidth / 2 - panX) * (zoom2D / oldZoom - 1);
+            panY -= ((e.clientY - rect.top) - container.clientHeight / 2 - panY) * (zoom2D / oldZoom - 1);
+            isManualPan2D = true;
+        }, { passive: false });
+
+        // --- Keyboard Navigation ---
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            const isInputActive = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+
+            if (e.key === 'Escape') {
+                if (isInputActive) document.activeElement.blur();
+                else if (isLinkingMode) cancelCrossLink();
+                else if (selectedNodeId) { selectedNodeId = null; renderBottomPanel(); }
+                return;
+            }
+            if (e.key === 'Tab' && selectedNodeId && !isLinkingMode) { e.preventDefault(); createNewNode(selectedNodeId); return; }
+            if (e.key === 'Delete' && !isInputActive && selectedNodeId && !isLinkingMode) { e.preventDefault(); deleteNode(selectedNodeId); return; }
+            if (e.key === '/' && !isInputActive) {
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+                return;
+            }
+
+            if (isInputActive || isLinkingMode) return;
+
+            if (!selectedNodeId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                if (nodes.length > 0) { selectedNodeId = nodes[0].id; renderBottomPanel(); }
+                return;
+            }
+
+            const currentNode = nodes.find(n => n.id === selectedNodeId);
+            if (!currentNode) return;
+
+            let newSelectedId = null;
+            switch (e.key) {
+                case 'ArrowUp': if (currentNode.parentId) newSelectedId = currentNode.parentId; break;
+                case 'ArrowDown':
+                    const children = nodes.filter(n => n.parentId === currentNode.id);
+                    if (children.length > 0) newSelectedId = children[0].id; break;
+                case 'ArrowRight':
+                case 'ArrowLeft':
+                    const siblings = nodes.filter(n => n.parentId === currentNode.parentId);
+                    if (siblings.length > 1) {
+                        const currentIndex = siblings.findIndex(n => n.id === currentNode.id);
+                        newSelectedId = siblings[(currentIndex + (e.key === 'ArrowRight' ? 1 : -1) + siblings.length) % siblings.length].id;
+                    }
+                    break;
+            }
+
+            if (newSelectedId && newSelectedId !== selectedNodeId) {
+                e.preventDefault(); registerInteraction(); selectedNodeId = newSelectedId;
+                searchQuery = ''; rawSearchQuery = ''; isManualPan2D = false; renderBottomPanel();
+            }
+        });
+
+        // --- Panel Logic ---
+        function updateNodeData(id, field, value) {
+            registerInteraction();
+            const node = nodes.find(n => n.id === id);
+            if (node) { node[field] = value; saveData(); }
+            if (field === 'hat') renderBottomPanel(); // re-render for hat UI changes
+        }
+
+        function createNewNode(parentId) {
+            registerInteraction();
+            const parent = nodes.find(n => n.id === parentId);
+            let spawnPos = parent ? new Vector3(parent.pos.x, parent.pos.y, parent.pos.z).add(new Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize().multiply(40)).normalize().multiply(CONFIG.sphereRadius) : new Vector3(0,0,CONFIG.sphereRadius);
+
+            const newNode = {
+                id: generateId(), title: 'New Idea', desc: '', parentId: parentId, links: [], hat: 'neutral',
+                pos: spawnPos, vel: new Vector3(0,0,0), projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0
+            };
+            nodes.push(newNode); selectedNodeId = newNode.id;
+            saveData(); renderBottomPanel();
+
+            setTimeout(() => {
+                const titleInput = document.getElementById('node-title-input');
+                if (titleInput) { titleInput.focus(); titleInput.select(); }
+            }, 10);
+        }
+
+        function startCrossLink(sourceId) { isLinkingMode = true; linkSourceId = sourceId; renderBottomPanel(); }
+        function cancelCrossLink() { isLinkingMode = false; linkSourceId = null; renderBottomPanel(); }
+        function deleteCrossLink(sourceId, targetId) {
+            const node = nodes.find(n => n.id === sourceId);
+            if (node && node.links) { node.links = node.links.filter(id => id !== targetId); saveData(); renderBottomPanel(); }
+        }
+
+        function deleteNode(id) {
+            if(!confirm("Are you sure you want to delete this node and all its children?")) return;
+            const idsToDelete = new Set([id]); let added;
+            do {
+                added = false;
+                for (let n of nodes) { if (idsToDelete.has(n.parentId) && !idsToDelete.has(n.id)) { idsToDelete.add(n.id); added = true; } }
+            } while (added);
+            nodes = nodes.filter(n => !idsToDelete.has(n.id));
+            nodes.forEach(n => { if(n.links) n.links = n.links.filter(lid => !idsToDelete.has(lid)); });
+            selectedNodeId = null; saveData(); renderBottomPanel();
+        }
+
+        function renderBottomPanel() {
+            const col1 = document.getElementById('panel-col1');
+            const col2 = document.getElementById('panel-col2');
+            const col3 = document.getElementById('panel-col3');
+
+            let currentFileName = fileSystem.currentId ? fileSystem.files[fileSystem.currentId].name : '';
+
+            // COL 1: System & Filter
+            const filterColors = ['white', 'red', 'black', 'yellow', 'green', 'blue'];
+            let col1Html = `
+                <div class="flex flex-col gap-3 mb-4">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1 block">Project Name</label>
+                        <input type="text" value="${currentFileName}" onchange="updateCurrentFileName(this.value)" class="input-field w-full px-3 py-2 text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1 block flex justify-between items-center">
+                            <span>Six Hats (Filter)</span>
+                            ${activeHatFilter ? `<span class="text-xs text-slate-400 cursor-pointer hover:text-slate-300" onclick="toggleHatFilter(null)">Clear Filter</span>` : ''}
+                        </label>
+                        <div class="flex gap-2 p-2 bg-[#0f1115] border border-[#2b2d35] rounded-lg">
+                            ${filterColors.map(h => `
+                                <button onclick="toggleHatFilter('${h}')" title="${HAT_LABELS[h]}" 
+                                    class="hat-btn hat-${h} ${activeHatFilter === h ? 'active' : ''} ${activeHatFilter && activeHatFilter !== h ? 'opacity-30' : ''}"></button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1 block">Search Notes ( Press / )</label>
+                        <input type="text" id="search-input" value="${rawSearchQuery}" placeholder="Type to search..." oninput="handleSearch(this.value)" class="input-field w-full px-3 py-2 text-sm">
+                    </div>
+                </div>
+            `;
+
+            if (searchQuery !== '') {
+                const results = nodes.filter(n => n.title.toLowerCase().includes(searchQuery) || (n.desc && n.desc.toLowerCase().includes(searchQuery)));
+                col1Html += `<div class="flex-grow overflow-y-auto pr-2 flex flex-col gap-2">`;
+                if (results.length > 0) {
+                    results.forEach(n => {
+                        col1Html += `
+                            <div class="item-card p-3 cursor-pointer hover:border-slate-500 hover:bg-slate-500/5 transition-all" onclick="selectedNodeId='${n.id}'; searchQuery=''; rawSearchQuery=''; renderBottomPanel();">
+                                <div class="font-medium text-sm text-gray-200">${n.title}</div>
+                                ${n.desc ? `<div class="text-xs text-gray-500 mt-1 truncate">${n.desc}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                } else col1Html += `<div class="text-sm text-gray-500 text-center mt-4">No results found</div>`;
+                col1Html += `</div>`;
+            } else {
+                col1Html += `<div class="mt-auto border-t border-[#2b2d35] pt-4 flex flex-col gap-2"><div class="text-xs text-gray-500 text-center">System Ready</div></div>`;
+            }
+            col1.innerHTML = col1Html;
+
+            if (!selectedNodeId && !isLinkingMode) {
+                col2.innerHTML = `<div class="text-gray-500 text-sm border border-dashed border-[#2b2d35] rounded-xl p-4 flex-grow flex items-center justify-center">Select a node on Canvas to edit</div>`;
+                col3.innerHTML = `<div class="text-gray-500 text-sm border border-dashed border-[#2b2d35] rounded-xl p-4 flex-grow flex items-center justify-center">Waiting for selection...</div>`;
+                return;
+            }
+
+            const node = nodes.find(n => n.id === (isLinkingMode ? linkSourceId : selectedNodeId));
+            if (!node) return;
+
+            // COL 2: Editor (Six Hats Integrated)
+            const hatButtons = ['neutral', 'white', 'red', 'black', 'yellow', 'green', 'blue'].map(h => `
+                <button onclick="updateNodeData('${node.id}', 'hat', '${h}')" title="${HAT_LABELS[h]}"
+                    class="hat-btn hat-${h} ${node.hat === h ? 'active' : 'opacity-40 hover:opacity-100'}"></button>
+            `).join('');
+
+            col2.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs text-gray-500 cursor-pointer hover:text-gray-300" onclick="navigator.clipboard.writeText('${node.id}'); alert('ID Copied: ${node.id}')">ID: ${node.id}</span>
+                    <button onclick="${isLinkingMode ? 'cancelCrossLink()' : 'selectedNodeId=null; renderBottomPanel();'}" class="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded transition-colors">Deselect</button>
+                </div>
+                <div class="flex flex-col gap-3 flex-grow ${isLinkingMode ? 'opacity-40 pointer-events-none' : ''}">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1 block">Title</label>
+                        <input type="text" id="node-title-input" value="${node.title}" oninput="updateNodeData('${node.id}', 'title', this.value)" class="input-field w-full px-3 py-2 text-sm font-medium">
+                    </div>
+                    
+                    <div class="flex items-center gap-3 bg-[#0f1115] p-2 rounded-lg border border-[#2b2d35]">
+                        <span class="text-xs font-medium text-gray-400 whitespace-nowrap ml-1">Hat:</span>
+                        <div class="flex gap-2">${hatButtons}</div>
+                        <span class="text-[11px] text-gray-500 ml-auto mr-1 truncate w-[100px] text-right" title="${HAT_LABELS[node.hat]}">${HAT_LABELS[node.hat]}</span>
+                    </div>
+
+                    <div class="flex flex-col flex-grow">
+                        <label class="text-xs font-semibold text-gray-400 mb-1 block">Description</label>
+                        <textarea oninput="updateNodeData('${node.id}', 'desc', this.value)" class="input-field w-full px-3 py-2 text-sm resize-none flex-grow" placeholder="Add description here...">${node.desc || ''}</textarea>
+                    </div>
+                </div>
+            `;
+
+            // COL 3: Relationships
+            if (isLinkingMode) {
+                col3.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center border-2 border-dashed border-slate-500/50 bg-slate-500/5 rounded-xl p-6 text-center">
+                        <div class="font-semibold text-slate-400 mb-2">Select Target Node</div>
+                        <div class="text-sm text-gray-400 mb-6">Click any node on Canvas to create a cross-link</div>
+                        <button onclick="cancelCrossLink()" class="btn-secondary px-4 py-2 text-sm w-full">Cancel</button>
+                    </div>
+                `;
+            } else {
+                const parent = nodes.find(n => n.id === node.parentId);
+                const children = nodes.filter(n => n.parentId === node.id);
+                const crossLinks = (node.links || []).map(id => nodes.find(n => n.id === id)).filter(Boolean);
+
+                col3.innerHTML = `
+                    <h3 class="text-xs font-semibold text-gray-400 mb-3">Relationships</h3>
+                    <div class="flex flex-col gap-2 flex-grow overflow-y-auto pr-2 mb-3">
+                        <div class="item-card p-3">
+                            <div class="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Parent Node</div>
+                            ${parent ? `<div class="text-sm font-medium cursor-pointer text-gray-200 hover:text-slate-400 transition-colors" onclick="selectedNodeId='${parent.id}'; renderBottomPanel();">↑ ${parent.title}</div>` : `<div class="text-sm text-gray-600 italic">Root Node</div>`}
+                        </div>
+                        
+                        <div class="item-card p-3">
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="text-[11px] text-gray-500 uppercase tracking-wider">Cross-Links</div>
+                                <button onclick="startCrossLink('${node.id}')" class="text-xs bg-gray-800 hover:bg-slate-500 text-gray-300 hover:text-white px-2 py-0.5 rounded transition-colors">+ Add</button>
+                            </div>
+                            <div class="flex flex-col gap-1.5 mt-2">
+                                ${crossLinks.length > 0 ? crossLinks.map(c => `
+                                    <div class="flex justify-between items-center group">
+                                        <div class="text-sm cursor-pointer text-slate-300 hover:text-slate-200 truncate" onclick="selectedNodeId='${c.id}'; renderBottomPanel();">⇌ ${c.title}</div>
+                                        <button onclick="deleteCrossLink('${node.id}', '${c.id}')" class="text-xs text-slate-400 opacity-0 group-hover:opacity-100 px-1.5 py-0.5 rounded hover:bg-slate-400/10 transition-all">✕</button>
+                                    </div>
+                                `).join('') : `<div class="text-xs text-gray-600 italic">No links</div>`}
+                            </div>
+                        </div>
+
+                        <div class="item-card p-3 flex-grow">
+                            <div class="text-[11px] text-gray-500 mb-2 uppercase tracking-wider">Children (${children.length})</div>
+                            <div class="flex flex-col gap-1.5">
+                                ${children.map(c => `<div class="text-sm cursor-pointer text-gray-300 hover:text-white truncate flex items-center gap-2" onclick="selectedNodeId='${c.id}'; renderBottomPanel();"><span class="w-2 h-2 rounded-full inline-block hat-${c.hat}"></span> ${c.title}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-[#2b2d35] flex flex-row gap-3">
+                        <button onclick="createNewNode('${node.id}')" class="btn-primary flex-1 py-2 text-sm shadow-sm">Add Child</button>
+                        <button onclick="deleteNode('${node.id}')" class="btn-danger flex-1 py-2 text-sm">Delete Node</button>
+                    </div>
+                `;
+            }
+        }
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = container.clientWidth * dpr; canvas.height = container.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); loadData(); draw();
+    </script>
+</body>
+</html>
