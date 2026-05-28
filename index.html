@@ -3,115 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IdeaCore 4.0 - Touch Optimized</title>
+    <title>IdeaCore 4.0 - Canvas First</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #0f1115;
-            --bg-panel: #181a1f;
-            --bg-hover: #23252b;
-            --border-color: #2b2d35;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #64748b;
-            --accent-hover: #475569;
-            --accent-dim: rgba(100, 116, 139, 0.15);
-            --danger: #cbd5e1;
-            --danger-dim: rgba(203, 213, 225, 0.1);
+            --bg-base: #0f1115; --bg-hover: #23252b; --border-color: #2b2d35;
+            --text-main: #e2e8f0; --text-muted: #94a3b8; --accent: #64748b;
         }
 
         body {
             font-family: 'Inter', 'Noto Sans Thai', sans-serif;
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            margin: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overscroll-behavior-y: none;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-        .input-field {
-            background-color: var(--bg-base);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
-            min-height: 44px;
-            /* Prevent iOS Auto Zoom */
-            font-size: 16px !important;
-        }
-        .input-field:focus { 
-            outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); 
-        }
-        
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
-            min-height: 44px; padding: 0.5rem 1rem;
-        }
-        .btn-primary { background-color: var(--accent); color: #ffffff; border: none; }
-        .btn-primary:hover, .btn-primary:active { background-color: var(--accent-hover); }
-        .btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-secondary:hover, .btn-secondary:active { background-color: var(--bg-hover); }
-        .btn-danger { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); }
-        .btn-danger:hover, .btn-danger:active { background-color: var(--danger-dim); }
-
-        .item-card { 
-            border: 1px solid var(--border-color); background: var(--bg-base); 
-            border-radius: 0.5rem; transition: border-color 0.2s;
+            background-color: var(--bg-base); color: var(--text-main);
+            margin: 0; overflow: hidden; display: flex; flex-direction: column;
+            height: 100vh; overscroll-behavior-y: none; -webkit-font-smoothing: antialiased;
         }
 
-        #canvas-container {
-            cursor: crosshair;
-            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-            background-size: 32px 32px;
-            touch-action: none;
-        }
+        .input-field { background-color: var(--bg-base); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.5rem; min-height: 44px; font-size: 16px !important; outline: none; }
+        .input-field:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-weight: 500; cursor: pointer; min-height: 44px; padding: 0 1rem; }
 
-        #file-drawer {
-            position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 50;
-            background: rgba(24, 26, 31, 0.95); backdrop-filter: blur(12px);
-            border-right: 1px solid var(--border-color);
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 10px 0 20px rgba(0,0,0,0.3);
-        }
+        #canvas-container { cursor: crosshair; background-image: radial-gradient(var(--border-color) 1px, transparent 1px); background-size: 32px 32px; touch-action: none; }
+
+        #file-drawer { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 50; background: rgba(24, 26, 31, 0.95); backdrop-filter: blur(12px); border-right: 1px solid var(--border-color); transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 10px 0 20px rgba(0,0,0,0.3); }
         #file-drawer.open { left: 0; }
-        #drawer-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 40;
-            background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
+        #drawer-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 40; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         #drawer-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .file-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; font-size: 14px; cursor: pointer; border-radius: 0.5rem;
-            color: var(--text-muted); transition: all 0.2s; margin-bottom: 4px;
-        }
-        .file-item:hover, .file-item:active { background: var(--bg-hover); color: var(--text-main); }
-        .file-item.active { background: var(--accent-dim); color: var(--text-main); font-weight: 500; }
         
-        .btn-delete {
-            width: 32px; height: 32px; text-align: center; line-height: 32px;
-            color: var(--text-muted); border-radius: 6px; display: flex; justify-content: center; align-items: center;
-            transition: all 0.2s;
-        }
-        .btn-delete:active, .btn-delete:hover { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 14px; cursor: pointer; border-radius: 0.5rem; color: var(--text-muted); transition: all 0.2s; margin-bottom: 4px; }
+        .file-item:active { background: var(--bg-hover); color: var(--text-main); }
+        .file-item.active { background: rgba(100, 116, 139, 0.15); color: var(--text-main); font-weight: 500; }
 
-        .hat-btn {
-            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
-            border: 2px solid transparent; transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .hat-btn:active, .hat-btn:hover { transform: scale(1.1); }
+        .hat-btn { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; flex-shrink: 0; }
+        .hat-btn:active { transform: scale(0.9); }
         .hat-btn.active { outline: 3px solid var(--text-main); outline-offset: 2px; }
         
         .hat-neutral { background-color: #ffffff; background-image: linear-gradient(45deg, transparent 42%, #475569 42%, #475569 58%, transparent 58%); border: 1px solid #cbd5e1; }
@@ -119,130 +43,121 @@
         .hat-black { background-color: #52525b; } .hat-yellow { background-color: #fbbf24; }
         .hat-green { background-color: #10b981; } .hat-blue { background-color: #38bdf8; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100;
-            background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-box { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; width: 90%; max-width: 400px; transform: translateY(20px); transition: transform 0.2s; }
-        .modal-overlay.active .modal-box { transform: translateY(0); }
-        
         #toast-container { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
         .toast { background: var(--accent); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: fade-in-up 0.3s ease; }
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #bottom-panel {
-            transition: height 0.3s ease;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
+        /* Floating Inline Editor */
+        #inline-editor {
+            position: fixed; z-index: 60; display: none; background: rgba(24, 26, 31, 0.95);
+            color: white; font-family: 'Inter', 'Noto Sans Thai', sans-serif; font-weight: 600; text-align: center;
+            border: 2px solid #38bdf8; border-radius: 99px; padding: 8px 16px; outline: none;
+            box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.4); backdrop-filter: blur(8px);
         }
-        
-        .search-highlight { box-shadow: inset 0 0 0 2px rgba(56, 189, 248, 0.5); }
     </style>
 </head>
 <body>
 
-    <header class="h-16 bg-[#181a1f] border-b border-[#2b2d35] flex items-center justify-between px-4 z-20 shrink-0">
+    <header class="h-16 bg-[#181a1f]/90 backdrop-blur border-b border-[#2b2d35] flex items-center justify-between px-4 z-20 shrink-0 absolute top-0 w-full">
         <div class="flex items-center gap-3">
-            <button onclick="toggleDrawer()" class="p-2 -ml-2 text-gray-400 hover:text-white rounded-lg active:bg-gray-800">
+            <button onclick="toggleDrawer()" class="p-2 -ml-2 text-gray-400 active:text-white rounded-lg active:bg-gray-800">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 class="text-xl font-semibold tracking-tight text-gray-100 hidden sm:block">IdeaCore</h1>
+            <h1 class="text-lg font-semibold tracking-tight text-gray-200" id="project-title-display">IdeaCore</h1>
         </div>
-        
-        <div class="flex items-center gap-2 bg-[#0f1115] p-1 rounded-lg border border-[#2b2d35]">
-            <button id="btn-3d" onclick="setMode(false)" class="px-3 py-1.5 text-sm font-medium rounded-md bg-slate-600 text-white shadow-sm transition-all">3D</button>
-            <button id="btn-2d" onclick="setMode(true)" class="px-3 py-1.5 text-sm font-medium rounded-md text-gray-400 hover:text-white transition-all">2D</button>
+        <div class="flex items-center gap-1 bg-[#0f1115] p-1 rounded-lg border border-[#2b2d35]">
+            <button id="btn-3d" onclick="setMode(false)" class="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 active:text-white transition-all">3D View</button>
+            <button id="btn-2d" onclick="setMode(true)" class="px-4 py-1.5 text-sm font-medium rounded-md bg-slate-600 text-white shadow-sm transition-all">2D Edit</button>
         </div>
     </header>
 
     <div id="drawer-overlay" onclick="toggleDrawer()"></div>
-    
     <div id="file-drawer" class="flex flex-col">
         <div class="p-5 border-b border-[#2b2d35] flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-100">Projects</h2>
-            <button onclick="toggleDrawer()" class="text-gray-400 p-2 rounded hover:bg-gray-800">✕</button>
+            <button onclick="toggleDrawer()" class="text-gray-400 p-2 rounded active:bg-gray-800">✕</button>
         </div>
         <div class="p-4 flex gap-2 border-b border-[#2b2d35]">
-            <button onclick="createNewFile()" class="btn btn-primary flex-1 text-sm shadow-sm">New Project</button>
+            <button onclick="createNewFile()" class="btn bg-sky-600 hover:bg-sky-500 text-white flex-1 text-sm shadow-sm">New Project</button>
         </div>
         <div class="flex gap-2 p-4 pb-2">
             <input type="file" id="file-import" accept=".md" class="hidden" onchange="handleImport(event)">
-            <button onclick="document.getElementById('file-import').click()" class="btn btn-secondary flex-1 text-xs">↓ Import MD</button>
-            <button onclick="exportMarkdown()" class="btn btn-secondary flex-1 text-xs">↑ Export MD</button>
+            <button onclick="document.getElementById('file-import').click()" class="btn border border-[#2b2d35] text-white flex-1 text-xs">↓ Import MD</button>
+            <button onclick="exportMarkdown()" class="btn border border-[#2b2d35] text-white flex-1 text-xs">↑ Export MD</button>
         </div>
         <div id="file-list" class="flex-1 overflow-y-auto p-4 flex flex-col"></div>
     </div>
 
-    <div id="canvas-container" class="flex-grow relative">
+    <!-- Canvas Area -->
+    <div id="canvas-container" class="flex-grow relative mt-16">
         <canvas id="sphereCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
-        <div class="absolute top-4 left-4 pointer-events-none flex flex-col gap-2">
-            <p class="text-[11px] sm:text-xs text-gray-400 bg-[#181a1f]/80 backdrop-blur px-3 py-1.5 rounded-full border border-[#2b2d35] inline-block" id="view-status">
-                Drag to rotate • Pinch to zoom
-            </p>
-        </div>
-        <div id="status-bar" class="absolute bottom-4 left-4 pointer-events-none text-[11px] sm:text-xs text-slate-400 bg-[#181a1f]/80 backdrop-blur px-3 py-1.5 rounded-full border border-[#2b2d35] transition-all opacity-0">
-            Ready
+        <div class="absolute bottom-4 left-4 pointer-events-none">
+            <p class="text-[11px] text-gray-400 bg-[#181a1f]/80 backdrop-blur px-3 py-1.5 rounded-full border border-[#2b2d35]" id="view-status">2D: Tap to Edit • Drag to Move • Pinch to Zoom</p>
         </div>
     </div>
 
-    <div id="bottom-panel" class="bg-[#181a1f] border-t border-[#2b2d35] flex flex-col md:flex-row w-full z-10 shrink-0 h-[45vh] md:h-[320px] overflow-y-auto md:overflow-hidden">
-        <div class="w-full md:w-1/3 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2b2d35]" id="panel-col1"></div>
-        <div class="w-full md:w-1/3 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2b2d35]" id="panel-col2"></div>
-        <div class="w-full md:w-1/3 flex flex-col p-4 md:p-5" id="panel-col3"></div>
+    <!-- Floating UI (2D Only) -->
+    <div id="fab-container" class="fixed bottom-8 right-6 flex flex-col gap-4 z-40 transition-opacity duration-300">
+        <button onclick="toggleSearch()" class="w-14 h-14 bg-[#181a1f] border border-[#2b2d35] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform text-xl text-white">🔍</button>
+        <button onclick="createNewNodeCenter()" class="w-14 h-14 bg-sky-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(56,189,248,0.4)] active:scale-90 transition-transform text-3xl text-white pb-1">+</button>
     </div>
 
-    <div id="confirm-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 class="text-lg font-semibold text-white mb-2" id="confirm-title">Confirm Action</h3>
-            <p class="text-gray-400 text-sm mb-6" id="confirm-message">Are you sure you want to proceed?</p>
-            <div class="flex gap-3 justify-end">
-                <button class="btn btn-secondary flex-1" onclick="closeConfirmModal(false)">Cancel</button>
-                <button class="btn btn-danger flex-1" onclick="closeConfirmModal(true)" id="confirm-yes-btn">Delete</button>
-            </div>
-        </div>
+    <!-- Context Dock (Appears when node is selected) -->
+    <div id="context-dock" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#181a1f]/95 backdrop-blur-xl border border-[#2b2d35] rounded-2xl p-2 flex gap-1 items-center z-40 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none shadow-2xl">
+        <button class="w-11 h-11 flex items-center justify-center text-white active:bg-gray-800 rounded-xl" onclick="editSelectedNodeText()">✏️</button>
+        <div class="w-px h-6 bg-slate-700 mx-1"></div>
+        <button onclick="updateNodeHat('neutral')" class="hat-btn hat-neutral"></button>
+        <button onclick="updateNodeHat('white')" class="hat-btn hat-white"></button>
+        <button onclick="updateNodeHat('red')" class="hat-btn hat-red"></button>
+        <button onclick="updateNodeHat('black')" class="hat-btn hat-black"></button>
+        <button onclick="updateNodeHat('yellow')" class="hat-btn hat-yellow"></button>
+        <button onclick="updateNodeHat('green')" class="hat-btn hat-green"></button>
+        <button onclick="updateNodeHat('blue')" class="hat-btn hat-blue"></button>
+        <div class="w-px h-6 bg-slate-700 mx-1"></div>
+        <button class="w-11 h-11 flex items-center justify-center text-orange-400 active:bg-gray-800 rounded-xl text-xl" onclick="breakNodeLinks()" title="Break Links">✂️</button>
+        <button class="w-11 h-11 flex items-center justify-center text-red-500 active:bg-gray-800 rounded-xl text-xl" onclick="deleteSelectedNode()">🗑️</button>
     </div>
-    
+
+    <!-- Search Modal -->
+    <div id="search-overlay" class="fixed top-0 left-0 w-full h-full bg-[#0f1115]/95 backdrop-blur-md z-50 hidden flex-col p-6 pt-16">
+        <div class="flex gap-3 items-center">
+            <input type="text" id="search-input" class="input-field w-full h-14 px-4 text-lg bg-[#181a1f]" placeholder="Search notes..." oninput="handleSearch(this.value)">
+            <button onclick="toggleSearch()" class="text-white px-4">Cancel</button>
+        </div>
+        <div id="search-results" class="mt-6 flex-grow overflow-y-auto flex flex-col gap-3"></div>
+    </div>
+
+    <!-- Inline Editor -->
+    <input type="text" id="inline-editor" autocomplete="off" spellcheck="false">
     <div id="toast-container"></div>
 
     <script>
         const HAT_COLORS = { neutral: '100, 116, 139', white: '241, 245, 249', red: '244, 63, 94', black: '82, 82, 91', yellow: '251, 191, 36', green: '16, 185, 129', blue: '56, 189, 248' };
-        const HAT_LABELS = { neutral: 'Neutral', white: 'Facts', red: 'Emotions', black: 'Risks', yellow: 'Benefits', green: 'Creativity', blue: 'Process' };
-
-        const CONFIG = {
-            sphereRadius: 300, focalLength: 600, baseFontSize: 14, nodePaddingX: 18, nodePaddingY: 12,
-            physics: { repulsion: 4500, springLength: 150, springK: 0.04, dampening: 0.82 },
-            storageKey: 'ideacore_data_v4'
-        };
+        const CONFIG = { sphereRadius: 300, focalLength: 600, baseFontSize: 16, nodePaddingX: 20, nodePaddingY: 14, storageKey: 'ideacore_data_v4' };
 
         let fileSystem = { currentId: null, files: {} };
         let nodes = [];
         let selectedNodeId = null;
-        let rawSearchQuery = '', searchQuery = '';
-        let activeHatFilter = null;
-        let is2DMode = false;
+        let is2DMode = true; // Default to 2D Canvas!
+        let searchQuery = '';
         
         let panX = 0, panY = 0, zoom2D = 1;
-        let isLinkingMode = false, linkSourceId = null;
+        let rotX = 0, rotY = 0, currentAutoRotX = 0.002, currentAutoRotY = 0.003;
 
-        const BASE_ROT_X = 0.002, BASE_ROT_Y = 0.003;
-        let rotX = 0, rotY = 0, currentAutoRotX = BASE_ROT_X, currentAutoRotY = BASE_ROT_Y;
-        let targetAutoRotX = BASE_ROT_X, targetAutoRotY = BASE_ROT_Y;
-
-        let isDragging = false, isDraggingNode = false, draggedNodeId = null;
+        // Interaction States
+        let isDraggingCanvas = false, isDraggingNode = false, draggedNodeId = null;
         let dragOffsetX = 0, dragOffsetY = 0;
         let lastMouseX = 0, lastMouseY = 0;
         let initialPinchDist = null, initialZoom = 1;
-        let hasMovedSinceDown = false;
         
+        // Dwell (Hold-to-Link) States
+        let hoverTargetId = null;
+        let hoverStartTime = 0;
         let lastInteractionTime = Date.now();
-        const IDLE_DELAY_MS = 10000; 
-        let confirmCallback = null;
 
         const canvas = document.getElementById('sphereCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvas-container');
-        const statusBar = document.getElementById('status-bar');
 
         class Vector3 {
             constructor(x, y, z) { this.x = x; this.y = y; this.z = z; }
@@ -253,67 +168,33 @@
             sub(v) { return new Vector3(this.x - v.x, this.y - v.y, this.z - v.z); }
         }
 
-        function normalizeAngle(a) { a = a % (Math.PI * 2); if (a < 0) a += Math.PI * 2; return a; }
-        function lerpAngle(c, t, lerpT) {
-            c = normalizeAngle(c); t = normalizeAngle(t);
-            let diff = t - c;
-            if (diff > Math.PI) diff -= Math.PI * 2; if (diff < -Math.PI) diff += Math.PI * 2;
-            return c + diff * lerpT;
-        }
         function generateId() { return Math.random().toString(36).substr(2, 9); }
-
         function showToast(msg) {
             const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast'; toast.innerText = msg;
+            const toast = document.createElement('div'); toast.className = 'toast'; toast.innerText = msg;
             container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
         }
 
-        function showStatus(msg) {
-            statusBar.innerText = msg;
-            statusBar.style.opacity = '1';
-            clearTimeout(statusBar.timeout);
-            statusBar.timeout = setTimeout(() => { statusBar.style.opacity = '0'; }, 2000);
-        }
-
-        function showConfirm(title, msg, onConfirm) {
-            document.getElementById('confirm-title').innerText = title;
-            document.getElementById('confirm-message').innerText = msg;
-            document.getElementById('confirm-modal').classList.add('active');
-            confirmCallback = onConfirm;
-        }
-        
-        function closeConfirmModal(result) {
-            document.getElementById('confirm-modal').classList.remove('active');
-            if (result && confirmCallback) confirmCallback();
-            confirmCallback = null;
-        }
-
-        function toggleDrawer() {
-            const drawer = document.getElementById('file-drawer');
-            const overlay = document.getElementById('drawer-overlay');
-            drawer.classList.toggle('open'); overlay.classList.toggle('active');
-        }
-
+        // --- Core Application Logic ---
         function setMode(to2D) {
             is2DMode = to2D;
-            document.getElementById('btn-2d').className = is2DMode ? "px-3 py-1.5 text-sm font-medium rounded-md bg-slate-600 text-white shadow-sm transition-all" : "px-3 py-1.5 text-sm font-medium rounded-md text-gray-400 hover:text-white transition-all";
-            document.getElementById('btn-3d').className = !is2DMode ? "px-3 py-1.5 text-sm font-medium rounded-md bg-slate-600 text-white shadow-sm transition-all" : "px-3 py-1.5 text-sm font-medium rounded-md text-gray-400 hover:text-white transition-all";
-            document.getElementById('view-status').innerText = is2DMode ? "Drag: Pan/Reorder • Pinch: Zoom" : "Drag: Rotate • Tap: Select";
+            document.getElementById('btn-2d').className = is2DMode ? "px-4 py-1.5 text-sm font-medium rounded-md bg-slate-600 text-white shadow-sm transition-all" : "px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 active:text-white transition-all";
+            document.getElementById('btn-3d').className = !is2DMode ? "px-4 py-1.5 text-sm font-medium rounded-md bg-slate-600 text-white shadow-sm transition-all" : "px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 active:text-white transition-all";
+            document.getElementById('fab-container').style.opacity = is2DMode ? '1' : '0';
+            document.getElementById('fab-container').style.pointerEvents = is2DMode ? 'auto' : 'none';
+            document.getElementById('view-status').innerText = is2DMode ? "2D: Tap to Edit • Drag to Move • Pinch to Zoom" : "3D: Read Only • Drag to Rotate";
             
-            if (is2DMode) { panX = 0; panY = 0; zoom2D = Math.min(1, container.clientWidth / 800); } 
-            else nodes.forEach(n => { n.pos.z += (Math.random() - 0.5) * CONFIG.sphereRadius * 0.8; n.vel.z += (Math.random() - 0.5) * 15; });
+            selectedNodeId = null; updateContextDock();
+            if (is2DMode) { panX = 0; panY = 0; zoom2D = Math.min(1, container.clientWidth / 800); }
+            else { nodes.forEach(n => { n.pos.z += (Math.random()-0.5)*CONFIG.sphereRadius*0.8; n.vel.z += (Math.random()-0.5)*15; }); }
         }
 
         function loadData() {
             const saved = localStorage.getItem(CONFIG.storageKey);
-            if (saved) { fileSystem = JSON.parse(saved); } 
-            else { createNewFile("Project 1"); return; }
-            if (!fileSystem.currentId || !fileSystem.files[fileSystem.currentId]) switchFile(Object.keys(fileSystem.files)[0]);
-            else switchFile(fileSystem.currentId);
+            if (saved) { fileSystem = JSON.parse(saved); } else { createNewFile("New Map"); return; }
+            switchFile(fileSystem.currentId || Object.keys(fileSystem.files)[0]);
         }
-
         function saveData() {
             if (!fileSystem.currentId) return;
             fileSystem.files[fileSystem.currentId].nodes = nodes.map(n => ({
@@ -325,278 +206,228 @@
 
         function createNewFile(nameParam = null) {
             const id = 'FILE_' + generateId();
-            const name = nameParam || `Project ${Object.keys(fileSystem.files).length + 1}`;
-            fileSystem.files[id] = {
-                name: name,
-                nodes: [{ id: generateId(), title: 'Central Idea', desc: '', parentId: null, links: [], px: 0, py: 0, pz: -CONFIG.sphereRadius, hat: 'neutral' }]
-            };
-            switchFile(id); toggleDrawer();
+            const name = nameParam || `Map ${Object.keys(fileSystem.files).length + 1}`;
+            fileSystem.files[id] = { name: name, nodes: [{ id: generateId(), title: 'Central Idea', desc: '', parentId: null, links: [], px: 0, py: 0, pz: -CONFIG.sphereRadius, hat: 'neutral' }] };
+            switchFile(id); document.getElementById('file-drawer').classList.remove('open'); document.getElementById('drawer-overlay').classList.remove('active');
         }
 
         function switchFile(id) {
             if (!fileSystem.files[id]) return;
             if (fileSystem.currentId && fileSystem.currentId !== id) saveData(); 
-            
-            fileSystem.currentId = id; selectedNodeId = null; searchQuery = ''; rawSearchQuery = ''; activeHatFilter = null; cancelCrossLink(); 
+            fileSystem.currentId = id; selectedNodeId = null; updateContextDock();
+            document.getElementById('project-title-display').innerText = fileSystem.files[id].name;
             
             nodes = fileSystem.files[id].nodes.map(n => ({
                 id: n.id, title: n.title, desc: n.desc || '', parentId: n.parentId, links: n.links || [], hat: n.hat || 'neutral',
                 pos: new Vector3(n.px || 0, n.py || 0, n.pz || 0), vel: new Vector3(0,0,0), projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0
             }));
-            
-            renderFileManager(); renderBottomPanel();
-            if(window.innerWidth < 768) { document.getElementById('drawer-overlay').classList.remove('active'); document.getElementById('file-drawer').classList.remove('open'); }
+            renderFileManager(); setMode(true); // Force 2D on open
         }
 
         function renderFileManager() {
-            const list = document.getElementById('file-list');
-            list.innerHTML = Object.keys(fileSystem.files).map(id => `
+            document.getElementById('file-list').innerHTML = Object.keys(fileSystem.files).map(id => `
                 <div class="file-item ${id === fileSystem.currentId ? 'active' : ''}" onclick="switchFile('${id}')">
-                    <span class="truncate w-full pr-2">${fileSystem.files[id].name}</span>
-                    <div class="btn-delete" onclick="promptDeleteFile(event, '${id}')" title="Delete Project">✕</div>
+                    <span class="truncate w-full">${fileSystem.files[id].name}</span>
+                    <div class="text-gray-500 px-2 py-1 active:bg-red-500/20 active:text-red-400 rounded" onclick="event.stopPropagation(); deleteFile('${id}')">✕</div>
                 </div>
             `).join('');
         }
 
-        function promptDeleteFile(e, id) {
-            e.stopPropagation(); e.preventDefault();
-            showConfirm("Delete Project", `Are you sure you want to delete "${fileSystem.files[id].name}"?`, () => executeDeleteFile(id));
-        }
-
-        function executeDeleteFile(id) {
-            if (Object.keys(fileSystem.files).length <= 1) { showToast("Cannot delete the last project"); return; }
+        function deleteFile(id) {
+            if (Object.keys(fileSystem.files).length <= 1) { showToast("Cannot delete the last file"); return; }
             delete fileSystem.files[id];
             if (fileSystem.currentId === id) switchFile(Object.keys(fileSystem.files)[0]);
             else { saveData(); renderFileManager(); }
-            showToast("Project deleted");
         }
 
-        // Global Updater Functions for UI bindings
-        function updateProjectName(name) {
-            if(fileSystem.currentId && fileSystem.files[fileSystem.currentId]) {
-                fileSystem.files[fileSystem.currentId].name = name;
-                saveData(); renderFileManager(); showToast('Name updated');
-            }
-        }
-        function updateNodeData(id, field, value) {
-            lastInteractionTime = Date.now();
-            const n = nodes.find(x => x.id === id);
-            if (n) { n[field] = value; saveData(); }
-            if (field === 'hat') renderBottomPanel();
-        }
-        function removeLink(sourceId, targetId) {
-            const n = nodes.find(x => x.id === sourceId);
-            if (n && n.links) { n.links = n.links.filter(id => id !== targetId); saveData(); renderBottomPanel(); }
-        }
-        function handleSearch(val) {
-            lastInteractionTime = Date.now(); rawSearchQuery = val; searchQuery = val.trim().toLowerCase(); renderBottomPanel();
-            // Optional: Keep focus on search input if on desktop
-            if (window.innerWidth >= 768) {
-                setTimeout(() => { const searchInput = document.getElementById('search-input'); if(searchInput) { searchInput.focus(); searchInput.setSelectionRange(val.length, val.length); }}, 10);
-            }
+        function toggleDrawer() {
+            document.getElementById('file-drawer').classList.toggle('open');
+            document.getElementById('drawer-overlay').classList.toggle('active');
         }
 
-        // Helper for array swapping
-        function swapNodesInArray(id1, id2) {
-            const idx1 = nodes.findIndex(n => n.id === id1); const idx2 = nodes.findIndex(n => n.id === id2);
-            if (idx1 !== -1 && idx2 !== -1) { const temp = nodes[idx1]; nodes[idx1] = nodes[idx2]; nodes[idx2] = temp; saveData(); }
-        }
-
-        // Data Import & Export Functions
-        function exportMarkdown() {
-            let md = "";
-            const roots = nodes.filter(n => !n.parentId);
-            function traverse(node, depth) {
-                const prefix = "#".repeat(depth);
-                md += `${prefix} ${node.title}\n`;
-                if (node.hat && node.hat !== 'neutral') md += `> Hat: ${node.hat}\n`;
-                if (node.desc && node.desc.trim() !== '') md += `${node.desc}\n`;
-                if (node.links && node.links.length > 0) {
-                    const linkNames = node.links.map(lid => {
-                        const target = nodes.find(n => n.id === lid);
-                        return target ? target.title : null;
-                    }).filter(Boolean);
-                    if(linkNames.length > 0) md += `> Cross-links: ${linkNames.join(', ')}\n`;
-                }
-                md += "\n";
-                nodes.filter(n => n.parentId === node.id).forEach(c => traverse(c, depth + 1));
-            }
-            roots.forEach(r => traverse(r, 1));
+        // --- Interaction & Input ---
+        function createNewNodeCenter() {
+            const worldX = (0 - panX) / zoom2D;
+            const worldY = (0 - panY) / zoom2D;
+            const nn = { 
+                id: generateId(), title: '', desc: '', parentId: null, links: [], hat: 'neutral', 
+                pos: new Vector3(worldX, worldY, 0), vel: new Vector3(0,0,0), 
+                projX: container.clientWidth/2, projY: container.clientHeight/2, scale: zoom2D, zIndex: 0, width: 0, height: 0 
+            };
+            nodes.push(nn); selectedNodeId = nn.id; saveData(); updateContextDock();
             
-            const blob = new Blob([md], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; 
-            const currentFileName = fileSystem.currentId ? fileSystem.files[fileSystem.currentId].name : 'Project_Export';
-            a.download = `${currentFileName.replace(/\s+/g, '_')}.md`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast("Project Exported");
+            // Auto focus for editing
+            setTimeout(() => editNodeText(nn.id), 50);
         }
 
-        function handleImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const fileName = file.name.replace(/\.md$/i, '');
-            const reader = new FileReader();
-            reader.onload = function(e) { parseMarkdown(e.target.result, fileName); event.target.value = ''; };
-            reader.readAsText(file);
+        function editSelectedNodeText() { if(selectedNodeId) editNodeText(selectedNodeId); }
+
+        function editNodeText(nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node) return;
+            const input = document.getElementById('inline-editor');
+            input.value = node.title;
+            input.style.display = 'block';
+            
+            const updatePos = () => {
+                if(input.style.display === 'none') return;
+                input.style.left = `${node.projX}px`; input.style.top = `${node.projY}px`;
+                const fSize = Math.max(16, CONFIG.baseFontSize * node.scale);
+                input.style.fontSize = `${fSize}px`;
+                input.style.transform = `translate(-50%, -50%) scale(${node.scale})`;
+                requestAnimationFrame(updatePos);
+            };
+            updatePos();
+            
+            setTimeout(() => { input.focus(); input.select(); document.getElementById('context-dock').style.opacity = '0'; }, 50);
+            
+            input.onblur = () => {
+                node.title = input.value || 'Untitled';
+                input.style.display = 'none'; saveData(); updateContextDock();
+            };
+            input.onkeydown = (e) => { if(e.key === 'Enter') input.blur(); };
         }
 
-        function parseMarkdown(text, fileName) {
-            const lines = text.split('\n');
-            let newNodes = []; let depthStack = []; 
-            let currentDesc = []; let currentNode = null;
+        function updateNodeHat(hat) {
+            if(selectedNodeId) {
+                const n = nodes.find(x => x.id === selectedNodeId);
+                if (n) { n.hat = hat; saveData(); updateContextDock(); }
+            }
+        }
 
-            for(let i=0; i<lines.length; i++) {
-                const line = lines[i].trimEnd();
-                const headingMatch = line.match(/^(#+)\s+(.*)/);
-                if (headingMatch) {
-                    if (currentNode) currentNode.desc = currentDesc.join('\n').trim();
-                    const depth = headingMatch[1].length;
-                    const title = headingMatch[2].trim();
-                    const id = generateId();
-                    
-                    let parentId = null;
-                    while(depthStack.length > 0 && depthStack[depthStack.length-1].depth >= depth) depthStack.pop();
-                    if (depthStack.length > 0) parentId = depthStack[depthStack.length-1].id;
-                    
-                    const u = Math.random(); const v = Math.random();
-                    const pos = new Vector3(
-                        Math.sin(Math.acos(2*v-1)) * Math.cos(2*Math.PI*u),
-                        Math.sin(Math.acos(2*v-1)) * Math.sin(2*Math.PI*u),
-                        Math.cos(Math.acos(2*v-1))
-                    ).multiply(CONFIG.sphereRadius);
+        function breakNodeLinks() {
+            if(!selectedNodeId) return;
+            const n = nodes.find(x => x.id === selectedNodeId);
+            if(n) {
+                n.parentId = null; n.links = [];
+                nodes.forEach(other => {
+                    if (other.parentId === n.id) other.parentId = null;
+                    if (other.links) other.links = other.links.filter(id => id !== n.id);
+                });
+                saveData(); showToast("Links broken ✂️");
+            }
+        }
 
-                    currentNode = {
-                        id, title, desc: '', parentId, links: [], hat: 'neutral',
-                        pos: pos, vel: new Vector3(0,0,0),
-                        projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0
-                    };
-                    newNodes.push(currentNode);
-                    depthStack.push({depth, id}); currentDesc = [];
-                } else if (currentNode && (line.startsWith('> Hat:') || line.startsWith('> หมวก:'))) {
-                    currentNode.hat = line.replace('> Hat:', '').replace('> หมวก:', '').trim();
-                } else if (currentNode && !line.startsWith('> Cross-links:') && line !== '') {
-                    currentDesc.push(line);
+        function deleteSelectedNode() {
+            if(!selectedNodeId) return;
+            const ids = new Set([selectedNodeId]); let added;
+            do { added = false; for (let n of nodes) { if (ids.has(n.parentId) && !ids.has(n.id)) { ids.add(n.id); added = true; } } } while (added);
+            nodes = nodes.filter(n => !ids.has(n.id));
+            nodes.forEach(n => { if(n.links) n.links = n.links.filter(lid => !ids.has(lid)); });
+            selectedNodeId = null; saveData(); updateContextDock(); showToast("Node deleted");
+        }
+
+        function updateContextDock() {
+            const dock = document.getElementById('context-dock');
+            if (selectedNodeId && is2DMode && document.getElementById('inline-editor').style.display === 'none') {
+                const n = nodes.find(x => x.id === selectedNodeId);
+                if(n) {
+                    dock.querySelectorAll('.hat-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if(btn.classList.contains(`hat-${n.hat}`)) btn.classList.add('active');
+                    });
                 }
-            }
-            if (currentNode) currentNode.desc = currentDesc.join('\n').trim();
-            if (newNodes.length > 0) {
-                const newFileId = 'FILE_' + generateId();
-                fileSystem.files[newFileId] = { name: fileName || 'Imported Project', nodes: newNodes };
-                switchFile(newFileId);
-                showToast("Imported successfully");
+                dock.style.opacity = '1'; dock.style.pointerEvents = 'auto'; dock.style.transform = 'translate(-50%, 0)';
             } else {
-                showToast("Failed to parse file");
+                dock.style.opacity = '0'; dock.style.pointerEvents = 'none'; dock.style.transform = 'translate(-50%, 20px)';
             }
         }
 
+        // Pointer Events
         function getEventPos(e) {
             const rect = canvas.getBoundingClientRect();
-            if (e.touches && e.touches.length > 0) {
-                return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top, rawX: e.touches[0].clientX, rawY: e.touches[0].clientY };
-            }
+            if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top, rawX: e.touches[0].clientX, rawY: e.touches[0].clientY };
             return { x: e.clientX - rect.left, y: e.clientY - rect.top, rawX: e.clientX, rawY: e.clientY };
         }
 
+        let lastTapTime = 0;
         function handlePointerDown(e) {
+            if(document.getElementById('inline-editor').style.display !== 'none') document.getElementById('inline-editor').blur();
             lastInteractionTime = Date.now();
-            hasMovedSinceDown = false;
             
             if (e.touches && e.touches.length === 2) {
-                isDragging = false; isDraggingNode = false;
+                isDraggingCanvas = false; isDraggingNode = false;
                 initialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                initialZoom = zoom2D;
-                return;
+                initialZoom = zoom2D; return;
             }
 
             const pos = getEventPos(e);
             lastMouseX = pos.rawX; lastMouseY = pos.rawY;
-            const cx = container.clientWidth / 2; const cy = container.clientHeight / 2;
             
             let clickedNode = null;
             const sortedNodes = [...nodes].sort((a, b) => b.zIndex - a.zIndex);
-            for (let node of sortedNodes) {
-                const hw = node.width / 2; const hh = node.height / 2;
-                if (pos.x >= node.projX - hw && pos.x <= node.projX + hw && pos.y >= node.projY - hh && pos.y <= node.projY + hh) {
-                    clickedNode = node; break;
-                }
+            for (let n of sortedNodes) {
+                const hw = n.width / 2; const hh = n.height / 2;
+                if (pos.x >= n.projX - hw && pos.x <= n.projX + hw && pos.y >= n.projY - hh && pos.y <= n.projY + hh) { clickedNode = n; break; }
             }
             
+            if (!is2DMode) { // 3D: Read Only
+                isDraggingCanvas = true; selectedNodeId = null; updateContextDock(); return;
+            }
+
+            // 2D: Edit Mode
             if (clickedNode) {
-                if (isLinkingMode) {
-                    if (clickedNode.id !== linkSourceId) {
-                        const sourceNode = nodes.find(n => n.id === linkSourceId);
-                        if (!sourceNode.links) sourceNode.links = [];
-                        if (!sourceNode.links.includes(clickedNode.id)) { sourceNode.links.push(clickedNode.id); saveData(); showToast("Linked successfully");}
-                    }
-                    cancelCrossLink();
-                } else {
-                    selectedNodeId = clickedNode.id; searchQuery = ''; rawSearchQuery = ''; renderBottomPanel();
-                    
-                    if (is2DMode) {
-                        isDraggingNode = true; draggedNodeId = clickedNode.id;
-                        const worldMouseX = (pos.x - cx - panX) / zoom2D; const worldMouseY = (pos.y - cy - panY) / zoom2D;
-                        dragOffsetX = clickedNode.pos.x - worldMouseX; dragOffsetY = clickedNode.pos.y - worldMouseY;
-                        showStatus("Hold & move to reorder");
-                    }
-                }
-            } else { isDragging = true; }
+                const now = Date.now();
+                if (now - lastTapTime < 300 && selectedNodeId === clickedNode.id) { editNodeText(clickedNode.id); } 
+                else { selectedNodeId = clickedNode.id; updateContextDock(); }
+                lastTapTime = now;
+
+                isDraggingNode = true; draggedNodeId = clickedNode.id;
+                const worldMouseX = (pos.x - container.clientWidth/2 - panX) / zoom2D; 
+                const worldMouseY = (pos.y - container.clientHeight/2 - panY) / zoom2D;
+                dragOffsetX = clickedNode.pos.x - worldMouseX; dragOffsetY = clickedNode.pos.y - worldMouseY;
+            } else { 
+                isDraggingCanvas = true; selectedNodeId = null; updateContextDock(); 
+            }
         }
 
         function handlePointerMove(e) {
-            if (e.touches && e.touches.length === 2 && initialPinchDist) {
-                if(!is2DMode) return; 
+            if (e.touches && e.touches.length === 2 && initialPinchDist && is2DMode) {
                 e.preventDefault();
                 const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                zoom2D = Math.max(0.1, Math.min(initialZoom * (currentDist / initialPinchDist), 5));
-                return;
+                zoom2D = Math.max(0.1, Math.min(initialZoom * (currentDist / initialPinchDist), 5)); return;
             }
 
             const pos = getEventPos(e);
             const dx = pos.rawX - lastMouseX; const dy = pos.rawY - lastMouseY;
             
-            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMovedSinceDown = true;
-
-            const cx = container.clientWidth / 2; const cy = container.clientHeight / 2;
-
             if (isDraggingNode && draggedNodeId && is2DMode) {
-                // If moving significantly, start reordering instead of panning
-                if (hasMovedSinceDown) {
-                    e.preventDefault(); lastInteractionTime = Date.now();
-                    const worldMouseX = (pos.x - cx - panX) / zoom2D; const worldMouseY = (pos.y - cy - panY) / zoom2D;
-                    const node = nodes.find(n => n.id === draggedNodeId);
-                    if (node) {
-                        node.pos.x = worldMouseX + dragOffsetX; node.pos.y = worldMouseY + dragOffsetY; node.isBeingDragged = true;
-                        
-                        const siblings = nodes.filter(n => n.parentId === node.parentId);
-                        const idx = siblings.findIndex(s => s.id === node.id);
-                        
-                        if (idx > 0 && node.pos.x < siblings[idx - 1].pos.x) { swapNodesInArray(node.id, siblings[idx-1].id); }
-                        if (idx < siblings.length - 1 && node.pos.x > siblings[idx + 1].pos.x) { swapNodesInArray(node.id, siblings[idx+1].id); }
-                    }
-                }
-            } else if (isDragging) {
                 e.preventDefault(); lastInteractionTime = Date.now();
-                if (is2DMode) { panX += dx; panY += dy; } 
-                else { rotY += dx * 0.005; rotX += dy * 0.005; }
+                const node = nodes.find(n => n.id === draggedNodeId);
+                if (node) {
+                    node.pos.x = ((pos.x - container.clientWidth/2 - panX) / zoom2D) + dragOffsetX; 
+                    node.pos.y = ((pos.y - container.clientHeight/2 - panY) / zoom2D) + dragOffsetY; 
+                    node.isBeingDragged = true;
+                    document.getElementById('context-dock').style.opacity = '0'; // hide while dragging
+                    
+                    // Dwell to Link Logic
+                    let foundHover = null;
+                    for (let n of [...nodes].sort((a,b)=>b.zIndex-a.zIndex)) {
+                        if (n.id === draggedNodeId) continue;
+                        const hw = n.width / 2 + 25; const hh = n.height / 2 + 25; // larger drop zone
+                        if (pos.x >= n.projX - hw && pos.x <= n.projX + hw && pos.y >= n.projY - hh && pos.y <= n.projY + hh) { foundHover = n.id; break; }
+                    }
+                    if (foundHover) {
+                        if (hoverTargetId !== foundHover) { hoverTargetId = foundHover; hoverStartTime = Date.now(); }
+                    } else { hoverTargetId = null; }
+                }
+            } else if (isDraggingCanvas) {
+                e.preventDefault(); lastInteractionTime = Date.now();
+                if (is2DMode) { panX += dx; panY += dy; } else { rotY += dx * 0.005; rotX += dy * 0.005; }
             }
             lastMouseX = pos.rawX; lastMouseY = pos.rawY;
         }
 
         function handlePointerUp() {
-            if (isDraggingNode && draggedNodeId) { const n = nodes.find(n => n.id === draggedNodeId); if (n) n.isBeingDragged = false; }
-            if (isDragging && !hasMovedSinceDown && !isLinkingMode) { selectedNodeId = null; renderBottomPanel(); }
-            isDragging = false; isDraggingNode = false; draggedNodeId = null; initialPinchDist = null;
+            if (isDraggingNode && draggedNodeId) {
+                const n = nodes.find(n => n.id === draggedNodeId); if (n) n.isBeingDragged = false;
+                updateContextDock();
+            }
+            isDraggingCanvas = false; isDraggingNode = false; draggedNodeId = null; initialPinchDist = null; hoverTargetId = null;
         }
 
-        container.addEventListener('mousedown', handlePointerDown);
-        window.addEventListener('mousemove', handlePointerMove, {passive: false});
-        window.addEventListener('mouseup', handlePointerUp);
-        
-        container.addEventListener('touchstart', handlePointerDown, {passive: false});
-        window.addEventListener('touchmove', handlePointerMove, {passive: false});
-        window.addEventListener('touchend', handlePointerUp);
+        container.addEventListener('mousedown', handlePointerDown); window.addEventListener('mousemove', handlePointerMove, {passive: false}); window.addEventListener('mouseup', handlePointerUp);
+        container.addEventListener('touchstart', handlePointerDown, {passive: false}); window.addEventListener('touchmove', handlePointerMove, {passive: false}); window.addEventListener('touchend', handlePointerUp);
 
         container.addEventListener('wheel', (e) => {
             if (!is2DMode) return;
@@ -607,91 +438,38 @@
             panY -= ((e.clientY - rect.top) - container.clientHeight / 2 - panY) * (zoom2D / oldZoom - 1);
         }, { passive: false });
 
-        function update2DTreeLayout() {
-            const roots = nodes.filter(n => !n.parentId);
-            let currentX = 0; const hSpace = 200, vSpace = 140; 
-            function traverse(node, depth) {
-                const children = nodes.filter(n => n.parentId === node.id);
-                if (children.length === 0) { node.target2D = { x: currentX, y: depth * vSpace }; currentX += hSpace; return node.target2D.x; }
-                else {
-                    let childXs = children.map(c => traverse(c, depth + 1));
-                    let avgX = childXs.reduce((a, b) => a + b, 0) / childXs.length;
-                    node.target2D = { x: avgX, y: depth * vSpace }; return avgX;
-                }
-            }
-            roots.forEach(r => { traverse(r, 0); currentX += hSpace * 0.5; });
-            const allY = nodes.map(n => n.target2D ? n.target2D.y : 0); const allX = nodes.map(n => n.target2D ? n.target2D.x : 0);
-            if (allY.length > 0 && allX.length > 0) {
-                const offsetY = (Math.min(...allY) + Math.max(...allY)) / 2; const offsetX = (Math.min(...allX) + Math.max(...allX)) / 2;
-                nodes.forEach(n => { if(n.target2D) { n.target2D.x -= offsetX; n.target2D.y -= offsetY; } });
-            }
-        }
-
+        // --- Render Engine ---
         function updatePhysics() {
-            const MAX_VEL = 15;
             if (is2DMode) {
-                update2DTreeLayout();
                 for (let n of nodes) {
                     if (n.isBeingDragged) { n.vel.x = 0; n.vel.y = 0; n.vel.z = 0; continue; }
-                    if (n.target2D) { n.vel.x += (n.target2D.x - n.pos.x) * 0.1; n.vel.y += (n.target2D.y - n.pos.y) * 0.1; }
-                    n.vel.z += (0 - n.pos.z) * 0.15; 
-                    if (n.vel.magnitude() > MAX_VEL) n.vel.normalize().multiply(MAX_VEL);
-                    n.pos.add(n.vel); n.vel.multiply(CONFIG.physics.dampening);
+                    n.vel.x *= 0.8; n.vel.y *= 0.8; n.pos.x += n.vel.x; n.pos.y += n.vel.y;
+                    n.vel.z += (0 - n.pos.z) * 0.2; n.pos.z += n.vel.z; n.vel.z *= 0.8; // flatten Z
                 }
                 return;
             }
-
+            // 3D Physics (Springs)
             for (let i = 0; i < nodes.length; i++) {
                 let force = new Vector3(0,0,0); const n1 = nodes[i];
                 force.add(new Vector3(-n1.pos.x, -n1.pos.y, -n1.pos.z).multiply(0.001));
-
                 for (let j = 0; j < nodes.length; j++) {
                     if (i === j) continue; const n2 = nodes[j];
                     let diff = n1.pos.sub(n2.pos); let distSq = diff.x*diff.x + diff.y*diff.y + diff.z*diff.z;
-                    if (distSq < 1.0) distSq = 1.0; 
                     force.add(diff.normalize().multiply(CONFIG.physics.repulsion / Math.max(distSq, 10)));
-
-                    let isConnected = (n1.parentId === n2.id || n2.parentId === n1.id) || (n1.links && n1.links.includes(n2.id)) || (n2.links && n2.links.includes(n1.id));
-                    if (isConnected) force.add(n2.pos.sub(n1.pos).normalize().multiply((n2.pos.sub(n1.pos).magnitude() - CONFIG.physics.springLength) * CONFIG.physics.springK));
+                    if (n1.parentId === n2.id || n2.parentId === n1.id || (n1.links && n1.links.includes(n2.id)) || (n2.links && n2.links.includes(n1.id))) 
+                        force.add(n2.pos.sub(n1.pos).normalize().multiply((n2.pos.sub(n1.pos).magnitude() - CONFIG.physics.springLength) * CONFIG.physics.springK));
                 }
                 n1.vel.add(force);
             }
-
-            for (let n of nodes) {
-                if (n.vel.magnitude() > MAX_VEL) n.vel.normalize().multiply(MAX_VEL);
-                n.pos.add(n.vel); n.vel.multiply(CONFIG.physics.dampening); n.pos.normalize().multiply(CONFIG.sphereRadius);
-            }
-        }
-
-        function rotate3D(p, ax, ay) {
-            let x1 = p.x * Math.cos(ay) - p.z * Math.sin(ay), z1 = p.z * Math.cos(ay) + p.x * Math.sin(ay);
-            let y2 = p.y * Math.cos(ax) - z1 * Math.sin(ax), z2 = z1 * Math.cos(ax) + p.y * Math.sin(ax);
-            return { x: x1, y: y2, z: z2 };
+            for (let n of nodes) { if(n.vel.magnitude()>15) n.vel.normalize().multiply(15); n.pos.add(n.vel); n.vel.multiply(CONFIG.physics.dampening); n.pos.normalize().multiply(CONFIG.sphereRadius); }
         }
 
         function draw() {
             const w = container.clientWidth, h = container.clientHeight, cx = w / 2, cy = h / 2;
             ctx.clearRect(0, 0, w, h);
 
-            const isIdle = (Date.now() - lastInteractionTime) > IDLE_DELAY_MS;
-            
-            if (is2DMode) {
-                targetAutoRotX = 0; targetAutoRotY = 0; rotX += (0 - rotX) * 0.1; rotY += (0 - rotY) * 0.1;
-                if (!isDragging && !isDraggingNode && selectedNodeId && searchQuery === '' && !isLinkingMode) {
-                    const fn = nodes.find(n => n.id === selectedNodeId);
-                    if (fn) { panX += (-fn.pos.x * zoom2D - panX) * 0.08; panY += (-fn.pos.y * zoom2D - panY) * 0.08; }
-                }
-            } else if (selectedNodeId && searchQuery === '' && !isDragging) {
-                const fn = nodes.find(n => n.id === selectedNodeId);
-                if (fn) {
-                    rotX = lerpAngle(rotX, Math.atan2(-fn.pos.y, Math.sqrt(fn.pos.x**2 + fn.pos.z**2)), 0.06); 
-                    rotY = lerpAngle(rotY, Math.atan2(fn.pos.x, fn.pos.z) + Math.PI, 0.06);
-                }
-            } else {
-                targetAutoRotX = isIdle ? BASE_ROT_X : 0.0002; targetAutoRotY = isIdle ? BASE_ROT_Y : 0.0003;
-                currentAutoRotX += (targetAutoRotX - currentAutoRotX) * 0.05; currentAutoRotY += (targetAutoRotY - currentAutoRotY) * 0.05;
-                rotX = normalizeAngle(rotX + currentAutoRotX); rotY = normalizeAngle(rotY + currentAutoRotY);
-            }
+            if (is2DMode) { rotX += (0 - rotX) * 0.1; rotY += (0 - rotY) * 0.1; } 
+            else if (!isDraggingCanvas) { rotX += currentAutoRotX; rotY += currentAutoRotY; rotX = rotX%(Math.PI*2); rotY = rotY%(Math.PI*2); }
 
             updatePhysics();
 
@@ -699,48 +477,42 @@
                 if (is2DMode) {
                     node.projX = cx + panX + node.pos.x * zoom2D; node.projY = cy + panY + node.pos.y * zoom2D; node.scale = zoom2D; node.zIndex = 0;
                 } else {
-                    let r = rotate3D(node.pos, rotX, rotY); let s = CONFIG.focalLength / (CONFIG.focalLength + r.z + CONFIG.sphereRadius * 0.5);
-                    node.projX = cx + r.x * s; node.projY = cy + r.y * s; node.scale = s; node.zIndex = -r.z;
+                    let cosY = Math.cos(rotY), sinY = Math.sin(rotY); let x1 = node.pos.x * cosY - node.pos.z * sinY; let z1 = node.pos.z * cosY + node.pos.x * sinY;
+                    let cosX = Math.cos(rotX), sinX = Math.sin(rotX); let y2 = node.pos.y * cosX - z1 * sinX; let z2 = z1 * cosX + node.pos.y * sinX;
+                    let s = CONFIG.focalLength / (CONFIG.focalLength + z2 + CONFIG.sphereRadius * 0.5);
+                    node.projX = cx + x1 * s; node.projY = cy + y2 * s; node.scale = s; node.zIndex = -z2;
                 }
                 return node;
             }).sort((a, b) => a.zIndex - b.zIndex);
 
             renderList.forEach(n => {
-                if (n.parentId) { const p = nodes.find(x => x.id === n.parentId); if (p) drawLine(p, n, false); }
-                if (n.links) n.links.forEach(lid => { const t = nodes.find(x => x.id === lid); if (t) drawLine(n, t, true); });
+                if (n.parentId) { const p = nodes.find(x => x.id === n.parentId); if (p) drawLine(p, n); }
+                if (n.links) n.links.forEach(lid => { const t = nodes.find(x => x.id === lid); if (t) drawLine(n, t); });
             });
 
-            function drawLine(start, end, isCross) {
+            function drawLine(start, end) {
                 const avg = (start.scale + end.scale) / 2;
                 let op = Math.min(Math.max(avg, 0.15), 0.8);
                 const isHi = selectedNodeId === start.id || selectedNodeId === end.id;
                 
-                // Dim based on filter OR Search
-                if (activeHatFilter && (start.hat !== activeHatFilter && end.hat !== activeHatFilter)) op *= 0.1;
                 if (searchQuery !== '') {
-                    const sMatch = start.title.toLowerCase().includes(searchQuery);
-                    const eMatch = end.title.toLowerCase().includes(searchQuery);
-                    if (!sMatch && !eMatch) op *= 0.15;
+                    if (!start.title.toLowerCase().includes(searchQuery) && !end.title.toLowerCase().includes(searchQuery)) op *= 0.15;
                 }
 
                 ctx.beginPath(); ctx.moveTo(start.projX, start.projY);
-                if (is2DMode && !isCross) ctx.bezierCurveTo(start.projX, (start.projY + end.projY) / 2, end.projX, (start.projY + end.projY) / 2, end.projX, end.projY);
+                if (is2DMode) ctx.bezierCurveTo(start.projX, (start.projY + end.projY) / 2, end.projX, (start.projY + end.projY) / 2, end.projX, end.projY);
                 else ctx.lineTo(end.projX, end.projY);
                 
-                ctx.lineWidth = (isHi && searchQuery === '') ? 2.5 * avg : 1.2 * avg; ctx.setLineDash(isCross ? [6, 6] : []);
+                ctx.lineWidth = isHi ? 2.5 * avg : 1.2 * avg;
                 let rgb = HAT_COLORS[end.hat && end.hat !== 'neutral' ? end.hat : 'neutral'];
                 if (isHi && searchQuery === '') rgb = '148, 163, 184';
-                ctx.strokeStyle = `rgba(${rgb}, ${(isHi && searchQuery === '') ? op + 0.3 : op})`; ctx.stroke(); ctx.setLineDash([]);
+                ctx.strokeStyle = `rgba(${rgb}, ${(isHi && searchQuery === '') ? op + 0.3 : op})`; ctx.stroke();
             }
 
             renderList.forEach(node => {
-                const isSelected = selectedNodeId === node.id && searchQuery === '';
-                const isLinkSource = isLinkingMode && linkSourceId === node.id;
-                const isSearchMatch = searchQuery !== '' && (node.title.toLowerCase().includes(searchQuery) || (node.desc && node.desc.toLowerCase().includes(searchQuery)));
-                const isHi = isSelected || isSearchMatch || isLinkSource;
-
+                const isHi = (selectedNodeId === node.id) || (searchQuery !== '' && node.title.toLowerCase().includes(searchQuery));
                 const fSize = Math.max(CONFIG.baseFontSize * node.scale, 10);
-                ctx.font = `${isHi ? '600' : '500'} ${fSize}px 'Inter', sans-serif`;
+                ctx.font = `${isHi ? '600' : '500'} ${fSize}px 'Inter', 'Noto Sans Thai', sans-serif`;
                 
                 const pW = ctx.measureText(node.title).width + (CONFIG.nodePaddingX * 2 * node.scale);
                 const pH = fSize + (CONFIG.nodePaddingY * 2 * node.scale);
@@ -748,15 +520,8 @@
                 const x = node.projX - pW / 2, y = node.projY - pH / 2;
                 
                 let op = Math.min(Math.max(node.scale, 0.2), 1);
-                
-                if (activeHatFilter && node.hat !== activeHatFilter) op *= 0.1;
-                else if (searchQuery !== '') {
-                    if (!isSearchMatch) op *= 0.15;
-                    else op = Math.max(op, 0.9);
-                }
-                
-                if (isHi) op = 1.0;
-                if (isLinkSource) op = Math.abs(Math.sin(Date.now() * 0.005)) * 0.4 + 0.6;
+                if (searchQuery !== '') op = isHi ? 1.0 : op * 0.15;
+                else if (isHi) op = 1.0;
                 
                 const rgb = HAT_COLORS[node.hat] || HAT_COLORS.neutral;
 
@@ -775,166 +540,66 @@
                 }
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(node.title, node.projX, node.projY + (fSize * 0.05));
             });
+
+            // Draw Dwell Progress (Hold-to-Link)
+            if (isDraggingNode && hoverTargetId && is2DMode) {
+                const targetNode = nodes.find(n => n.id === hoverTargetId);
+                if (targetNode) {
+                    let progress = (Date.now() - hoverStartTime) / 2000;
+                    if (progress > 1) progress = 1;
+                    
+                    ctx.beginPath();
+                    ctx.arc(targetNode.projX, targetNode.projY, (targetNode.width/2) + 15 * zoom2D, -Math.PI/2, -Math.PI/2 + (Math.PI * 2 * progress));
+                    ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4 * zoom2D; ctx.lineCap = 'round'; ctx.stroke();
+
+                    if (progress === 1) {
+                        const dragged = nodes.find(n => n.id === draggedNodeId);
+                        if (dragged) {
+                            if (!dragged.parentId) dragged.parentId = targetNode.id;
+                            else {
+                                if (!dragged.links) dragged.links = [];
+                                if (!dragged.links.includes(targetNode.id)) dragged.links.push(targetNode.id);
+                            }
+                            saveData(); showToast("Connected! 🔗");
+                            if(navigator.vibrate) navigator.vibrate(50);
+                        }
+                        hoverTargetId = null; // Reset to prevent multi-fire
+                    }
+                }
+            }
+
             requestAnimationFrame(draw);
         }
 
-        function copyToClipboard(txt) {
-            if(navigator.clipboard) { navigator.clipboard.writeText(txt).then(()=>showToast("ID Copied: " + txt)); } 
-            else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); showToast("ID Copied"); }
+        // --- Search Logic ---
+        function toggleSearch() {
+            const overlay = document.getElementById('search-overlay'); const input = document.getElementById('search-input');
+            if (overlay.classList.contains('hidden')) {
+                overlay.classList.remove('hidden'); overlay.classList.add('flex');
+                input.focus(); input.value = ''; document.getElementById('search-results').innerHTML = ''; searchQuery = '';
+            } else { overlay.classList.add('hidden'); overlay.classList.remove('flex'); searchQuery = ''; }
         }
 
-        function cancelCrossLink() { 
-            isLinkingMode = false; linkSourceId = null; renderBottomPanel(); 
-        }
-
-        function createNewNode(parentId) {
-            lastInteractionTime = Date.now();
-            const parent = nodes.find(n => n.id === parentId);
-            let p = parent ? new Vector3(parent.pos.x, parent.pos.y, parent.pos.z).add(new Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize().multiply(50)).normalize().multiply(CONFIG.sphereRadius) : new Vector3(0,0,CONFIG.sphereRadius);
-            const nn = { id: generateId(), title: 'New Idea', desc: '', parentId: parentId, links: [], hat: 'neutral', pos: p, vel: new Vector3(0,0,0), projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0 };
-            nodes.push(nn); selectedNodeId = nn.id; saveData(); renderBottomPanel();
-        }
-
-        function deleteNode(id) {
-            showConfirm("Delete Node", "Are you sure you want to delete this node and all its nested children?", () => {
-                const ids = new Set([id]); let added;
-                do { added = false; for (let n of nodes) { if (ids.has(n.parentId) && !ids.has(n.id)) { ids.add(n.id); added = true; } } } while (added);
-                nodes = nodes.filter(n => !ids.has(n.id));
-                nodes.forEach(n => { if(n.links) n.links = n.links.filter(lid => !ids.has(lid)); });
-                selectedNodeId = null; saveData(); renderBottomPanel(); showToast("Nodes deleted");
-            });
-        }
-
-        function renderBottomPanel() {
-            const col1 = document.getElementById('panel-col1'); const col2 = document.getElementById('panel-col2'); const col3 = document.getElementById('panel-col3');
-            const projectName = fileSystem.currentId ? fileSystem.files[fileSystem.currentId].name : '';
-
-            const panelContainer = document.getElementById('bottom-panel');
-            if(window.innerWidth < 768) {
-                if (!selectedNodeId && !isLinkingMode) panelContainer.style.height = "210px"; // Taller to fit search
-                else panelContainer.style.height = "55vh";
-            } else panelContainer.style.height = "320px";
-
-            // COL 1: System & Filter & Search
-            let col1Html = `
-                <div class="flex flex-col gap-3 mb-4">
-                    <div>
-                        <input type="text" value="${projectName}" onchange="updateProjectName(this.value)" class="input-field w-full px-4 font-medium" placeholder="Project Name">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-400 mb-1.5 block flex justify-between">
-                            <span>Six Hats (Filter)</span>
-                            ${activeHatFilter ? `<span class="text-slate-400 cursor-pointer hover:text-white" onclick="activeHatFilter=null; renderBottomPanel();">Clear</span>` : ''}
-                        </label>
-                        <div class="flex justify-between p-2.5 bg-[#0f1115] border border-[#2b2d35] rounded-xl overflow-x-auto gap-2">
-                            ${['white', 'red', 'black', 'yellow', 'green', 'blue'].map(h => `
-                                <button onclick="activeHatFilter='${h}'; renderBottomPanel();" class="hat-btn hat-${h} ${activeHatFilter === h ? 'active' : ''} ${activeHatFilter && activeHatFilter !== h ? 'opacity-30' : ''}"></button>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div>
-                        <input type="text" id="search-input" value="${rawSearchQuery}" oninput="handleSearch(this.value)" class="input-field w-full px-4 text-sm ${searchQuery ? 'search-highlight' : ''}" placeholder="Search notes...">
-                    </div>
+        function handleSearch(val) {
+            searchQuery = val.trim().toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+            if (!searchQuery) { resultsDiv.innerHTML = ''; return; }
+            const results = nodes.filter(n => n.title.toLowerCase().includes(searchQuery));
+            resultsDiv.innerHTML = results.map(n => `
+                <div class="bg-[#181a1f] p-4 rounded-xl active:bg-gray-800 border border-[#2b2d35]" onclick="focusSearchResult('${n.id}')">
+                    <div class="text-white font-semibold">${n.title}</div>
                 </div>
-            `;
-            
-            // Search Results Display
-            if (searchQuery !== '') {
-                const results = nodes.filter(n => n.title.toLowerCase().includes(searchQuery) || (n.desc && n.desc.toLowerCase().includes(searchQuery)));
-                col1Html += `<div class="flex-grow overflow-y-auto pr-1 flex flex-col gap-2">`;
-                if (results.length > 0) {
-                    results.forEach(n => {
-                        col1Html += `
-                            <div class="item-card p-3 cursor-pointer hover:bg-slate-800 transition-all" onclick="selectedNodeId='${n.id}'; searchQuery=''; rawSearchQuery=''; renderBottomPanel();">
-                                <div class="font-medium text-sm text-gray-200">${n.title}</div>
-                                ${n.desc ? `<div class="text-xs text-gray-500 mt-1 truncate">${n.desc}</div>` : ''}
-                            </div>
-                        `;
-                    });
-                } else col1Html += `<div class="text-sm text-gray-500 text-center mt-2">No results</div>`;
-                col1Html += `</div>`;
-            }
-
-            col1.innerHTML = col1Html;
-
-            if (!selectedNodeId && !isLinkingMode) {
-                col2.innerHTML = `<div class="hidden md:flex text-gray-500 text-sm border-2 border-dashed border-[#2b2d35] rounded-xl p-6 flex-grow items-center justify-center text-center">Tap a node on the Canvas to start editing</div>`;
-                col3.innerHTML = `<div class="hidden md:flex text-gray-500 text-sm border-2 border-dashed border-[#2b2d35] rounded-xl p-6 flex-grow items-center justify-center text-center">Relationships will appear here</div>`;
-                return;
-            }
-
-            const node = nodes.find(n => n.id === (isLinkingMode ? linkSourceId : selectedNodeId));
-            if (!node) return;
-
-            // COL 2: Editor
-            col2.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-xs text-slate-500 bg-slate-800/50 px-2 py-1 rounded cursor-pointer active:bg-slate-700" onclick="copyToClipboard('${node.id}')">ID: ${node.id}</span>
-                    <button onclick="${isLinkingMode ? 'cancelCrossLink()' : 'selectedNodeId=null; renderBottomPanel();'}" class="btn btn-secondary px-3 text-xs min-h-[32px] py-1">Deselect ✕</button>
-                </div>
-                <div class="flex flex-col gap-4 flex-grow ${isLinkingMode ? 'opacity-30 pointer-events-none' : ''}">
-                    <input type="text" value="${node.title}" oninput="updateNodeData('${node.id}', 'title', this.value)" class="input-field w-full px-4 font-semibold" placeholder="Node Title">
-                    <div class="flex items-center gap-3 bg-[#0f1115] p-3 rounded-xl border border-[#2b2d35] overflow-x-auto">
-                        ${['neutral', 'white', 'red', 'black', 'yellow', 'green', 'blue'].map(h => `
-                            <button onclick="updateNodeData('${node.id}', 'hat', '${h}')" class="hat-btn hat-${h} ${node.hat === h ? 'active' : 'opacity-40'}"></button>
-                        `).join('')}
-                    </div>
-                    <textarea oninput="updateNodeData('${node.id}', 'desc', this.value)" class="input-field w-full px-4 py-3 resize-none flex-grow" placeholder="Add detailed notes here...">${node.desc || ''}</textarea>
-                </div>
-            `;
-
-            // COL 3: Relationships
-            if (isLinkingMode) {
-                col3.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center border-2 border-dashed border-sky-500/50 bg-sky-500/10 rounded-xl p-6 text-center">
-                        <div class="font-semibold text-sky-400 mb-2 text-lg">Select Target</div>
-                        <div class="text-sm text-gray-300 mb-6">Tap any other node on the canvas to draw a connection line.</div>
-                        <button onclick="cancelCrossLink()" class="btn btn-secondary w-full py-3">Cancel Linking</button>
-                    </div>
-                `;
-            } else {
-                const parent = nodes.find(n => n.id === node.parentId);
-                const children = nodes.filter(n => n.parentId === node.id);
-                const cross = (node.links || []).map(id => nodes.find(n => n.id === id)).filter(Boolean);
-
-                col3.innerHTML = `
-                    <div class="flex flex-col gap-3 flex-grow overflow-y-auto pr-1 mb-4">
-                        <div class="item-card p-4">
-                            <div class="text-[11px] text-gray-500 mb-2 uppercase font-semibold">Hierarchy</div>
-                            ${parent ? `<div class="text-sm font-medium cursor-pointer text-gray-200 active:text-slate-400 py-2 border-b border-[#2b2d35]" onclick="selectedNodeId='${parent.id}'; renderBottomPanel();">⬆ ${parent.title}</div>` : `<div class="text-sm text-gray-600 italic py-2 border-b border-[#2b2d35]">Root Node</div>`}
-                            <div class="mt-2 text-[11px] text-gray-500 mb-2 uppercase font-semibold flex justify-between">Children (${children.length})</div>
-                            <div class="flex flex-col gap-2">
-                                ${children.map(c => `<div class="text-sm cursor-pointer text-gray-300 active:bg-gray-800 p-2 rounded -mx-2 truncate flex items-center gap-2" onclick="selectedNodeId='${c.id}'; renderBottomPanel();"><span class="w-3 h-3 rounded-full inline-block hat-${c.hat}"></span> ${c.title}</div>`).join('')}
-                            </div>
-                        </div>
-                        <div class="item-card p-4">
-                            <div class="flex justify-between items-center mb-3">
-                                <div class="text-[11px] text-gray-500 uppercase font-semibold">Cross-Links</div>
-                                <button onclick="isLinkingMode=true; linkSourceId='${node.id}'; renderBottomPanel();" class="text-xs bg-slate-700 active:bg-slate-600 text-white px-3 py-1.5 rounded-lg shadow-sm font-medium">+ Link</button>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                ${cross.length > 0 ? cross.map(c => `
-                                    <div class="flex justify-between items-center bg-[#0f1115] p-2 rounded-lg border border-[#2b2d35]">
-                                        <div class="text-sm cursor-pointer text-slate-300 truncate pl-1 flex-1" onclick="selectedNodeId='${c.id}'; renderBottomPanel();">⇌ ${c.title}</div>
-                                        <button onclick="removeLink('${node.id}', '${c.id}')" class="text-xs text-red-400 px-3 py-2 rounded active:bg-red-900/30">✕</button>
-                                    </div>
-                                `).join('') : `<div class="text-sm text-gray-600 italic p-1">No cross-links</div>`}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-auto pt-4 border-t border-[#2b2d35] flex gap-3">
-                        <button onclick="createNewNode('${node.id}')" class="btn btn-primary flex-1">Add Child Node</button>
-                        <button onclick="deleteNode('${node.id}')" class="btn btn-danger flex-1 bg-red-500/10 border-red-500/50">Delete</button>
-                    </div>
-                `;
-            }
+            `).join('');
         }
 
-        function resizeCanvas() {
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = container.clientWidth * dpr; canvas.height = container.clientHeight * dpr;
-            ctx.scale(dpr, dpr);
+        function focusSearchResult(id) {
+            toggleSearch(); selectedNodeId = id; updateContextDock();
+            const n = nodes.find(x => x.id === id);
+            if (n) { panX = -n.pos.x * zoom2D; panY = -n.pos.y * zoom2D; }
         }
+
+        // --- Init ---
+        function resizeCanvas() { const dpr = window.devicePixelRatio || 1; canvas.width = container.clientWidth * dpr; canvas.height = container.clientHeight * dpr; ctx.scale(dpr, dpr); }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas(); loadData(); draw();
     </script>
