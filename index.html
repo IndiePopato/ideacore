@@ -133,7 +133,12 @@
 
     <script>
         const HAT_COLORS = { neutral: '100, 116, 139', white: '241, 245, 249', red: '244, 63, 94', black: '82, 82, 91', yellow: '251, 191, 36', green: '16, 185, 129', blue: '56, 189, 248' };
-        const CONFIG = { sphereRadius: 300, focalLength: 600, baseFontSize: 16, nodePaddingX: 20, nodePaddingY: 14, storageKey: 'ideacore_data_v4' };
+        
+        // FIX: Restored physics configuration
+        const CONFIG = { 
+            sphereRadius: 300, focalLength: 600, baseFontSize: 16, nodePaddingX: 20, nodePaddingY: 14, storageKey: 'ideacore_data_v4',
+            physics: { repulsion: 4500, springLength: 150, springK: 0.04, dampening: 0.82 }
+        };
 
         let fileSystem = { currentId: null, files: {} };
         let nodes = [];
