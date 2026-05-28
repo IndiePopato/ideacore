@@ -380,6 +380,95 @@
             if (n && n.links) { n.links = n.links.filter(id => id !== targetId); saveData(); renderBottomPanel(); }
         }
 
+        // Data Import & Export Functions
+        function exportMarkdown() {
+            let md = "";
+            const roots = nodes.filter(n => !n.parentId);
+            function traverse(node, depth) {
+                const prefix = "#".repeat(depth);
+                md += `${prefix} ${node.title}\n`;
+                if (node.hat && node.hat !== 'neutral') md += `> Hat: ${node.hat}\n`;
+                if (node.desc && node.desc.trim() !== '') md += `${node.desc}\n`;
+                if (node.links && node.links.length > 0) {
+                    const linkNames = node.links.map(lid => {
+                        const target = nodes.find(n => n.id === lid);
+                        return target ? target.title : null;
+                    }).filter(Boolean);
+                    if(linkNames.length > 0) md += `> Cross-links: ${linkNames.join(', ')}\n`;
+                }
+                md += "\n";
+                nodes.filter(n => n.parentId === node.id).forEach(c => traverse(c, depth + 1));
+            }
+            roots.forEach(r => traverse(r, 1));
+            
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; 
+            const currentFileName = fileSystem.currentId ? fileSystem.files[fileSystem.currentId].name : 'Project_Export';
+            a.download = `${currentFileName.replace(/\s+/g, '_')}.md`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Project Exported");
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const fileName = file.name.replace(/\.md$/i, '');
+            const reader = new FileReader();
+            reader.onload = function(e) { parseMarkdown(e.target.result, fileName); event.target.value = ''; };
+            reader.readAsText(file);
+        }
+
+        function parseMarkdown(text, fileName) {
+            const lines = text.split('\n');
+            let newNodes = []; let depthStack = []; 
+            let currentDesc = []; let currentNode = null;
+
+            for(let i=0; i<lines.length; i++) {
+                const line = lines[i].trimEnd();
+                const headingMatch = line.match(/^(#+)\s+(.*)/);
+                if (headingMatch) {
+                    if (currentNode) currentNode.desc = currentDesc.join('\n').trim();
+                    const depth = headingMatch[1].length;
+                    const title = headingMatch[2].trim();
+                    const id = generateId();
+                    
+                    let parentId = null;
+                    while(depthStack.length > 0 && depthStack[depthStack.length-1].depth >= depth) depthStack.pop();
+                    if (depthStack.length > 0) parentId = depthStack[depthStack.length-1].id;
+                    
+                    const u = Math.random(); const v = Math.random();
+                    const pos = new Vector3(
+                        Math.sin(Math.acos(2*v-1)) * Math.cos(2*Math.PI*u),
+                        Math.sin(Math.acos(2*v-1)) * Math.sin(2*Math.PI*u),
+                        Math.cos(Math.acos(2*v-1))
+                    ).multiply(CONFIG.sphereRadius);
+
+                    currentNode = {
+                        id, title, desc: '', parentId, links: [], hat: 'neutral',
+                        pos: pos, vel: new Vector3(0,0,0),
+                        projX: 0, projY: 0, scale: 1, zIndex: 0, width: 0, height: 0
+                    };
+                    newNodes.push(currentNode);
+                    depthStack.push({depth, id}); currentDesc = [];
+                } else if (currentNode && (line.startsWith('> Hat:') || line.startsWith('> หมวก:'))) {
+                    currentNode.hat = line.replace('> Hat:', '').replace('> หมวก:', '').trim();
+                } else if (currentNode && !line.startsWith('> Cross-links:') && line !== '') {
+                    currentDesc.push(line);
+                }
+            }
+            if (currentNode) currentNode.desc = currentDesc.join('\n').trim();
+            if (newNodes.length > 0) {
+                const newFileId = 'FILE_' + generateId();
+                fileSystem.files[newFileId] = { name: fileName || 'Imported Project', nodes: newNodes };
+                switchFile(newFileId);
+                showToast("Imported successfully");
+            } else {
+                showToast("Failed to parse file");
+            }
+        }
+
         function getEventPos(e) {
             const rect = canvas.getBoundingClientRect();
             if (e.touches && e.touches.length > 0) {
